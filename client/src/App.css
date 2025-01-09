@@ -1,0 +1,153 @@
+.home_section {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.home_section h1 {
+  background: linear-gradient(90deg, rgb(#b5c6e0, #ebf4f5));
+  background: transparent;
+  background-clip: text;
+  font-size: 4em;
+}
+
+.action_wrapper {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  width: 30em;
+  gap: 2rem;
+}
+
+.action_wrapper button {
+  padding: 1rem 2rem;
+  cursor: pointer;
+  border-radius: 10px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  transition: 0.3s all ease;
+}
+
+.action_wrapper button:nth-child(1) {
+  background: #6F00FF;
+}
+
+.action_wrapper button:nth-child(1):hover {
+  background: #4f02b4;
+}
+
+.action_wrapper button:nth-child(2) {
+  color: black;
+}
+
+.action_wrapper button:nth-child(2):hover {
+  background: #b9b8b8;
+}
+
+/* =============================
+create Room page
+ =============================== */
+
+.create_room_container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* Container styling */
+.form-container {
+  width: 100%;
+  min-width: 400px;
+  width: 30rem;
+  padding: 20px;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.back_btn{
+  text-decoration: none;
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  background: #333;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+}
+
+/* Form styling */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #e0e0e0;
+}
+.form-group{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+/* Label styling */
+.form-group label {
+  font-size: 1.1rem;
+  color: #b3b3b3;
+  margin-bottom: 5px;
+}
+
+/* Input styling */
+.form-group input {
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #292929;
+  color: #e0e0e0;
+  font-size: 16px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #5e9cff;
+  box-shadow: 0 0 4px #5e9cff;
+}
+
+.generate_id {
+  border: none;
+  background: transparent;
+  text-align: left;
+  color: #5e9cff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Button styling */
+.submit-button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5e9cff;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #4a8ae5;
+}
