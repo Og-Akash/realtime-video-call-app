@@ -53,7 +53,7 @@ create Room page
  =============================== */
 
 .create_room_container {
-  height: 100vh;
+  height: calc(100vh - 5rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -63,28 +63,12 @@ create Room page
 
 /* Container styling */
 .form-container {
+  max-width: 30rem;
   width: 100%;
-  min-width: 400px;
-  width: 30rem;
   padding: 20px;
   background-color: #1e1e1e;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.back_btn{
-  text-decoration: none;
-  color: white;
-  width: 3rem;
-  height: 3rem;
-  background: #333;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 2rem;
-  left: 2rem;
 }
 
 /* Form styling */
@@ -97,7 +81,7 @@ create Room page
 .form h1 {
   text-align: center;
   margin-bottom: 20px;
-  color: #e0e0e0;
+  color: var(--text);
 }
 .form-group{
   display: flex;
@@ -107,7 +91,7 @@ create Room page
 /* Label styling */
 .form-group label {
   font-size: 1.1rem;
-  color: #b3b3b3;
+  color: var(--text);
   margin-bottom: 5px;
 }
 
@@ -123,17 +107,21 @@ create Room page
 
 .form-group input:focus {
   outline: none;
-  border-color: #5e9cff;
-  box-shadow: 0 0 4px #5e9cff;
+  border-color: var(--primary);
+  box-shadow: 0 0 4px var(--primary);
 }
 
 .generate_id {
   border: none;
   background: transparent;
   text-align: left;
-  color: #5e9cff;
-  font-size: 1.2rem;
+  color: var(--text);
+  font-size: 1rem;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+.generate_id:hover {
+  color: var(--text-secondary);
 }
 
 /* Button styling */
@@ -141,7 +129,7 @@ create Room page
   padding: 10px;
   border: none;
   border-radius: 4px;
-  background-color: #5e9cff;
+  background-color: var(--primary);
   color: #ffffff;
   font-size: 16px;
   cursor: pointer;
@@ -149,5 +137,18 @@ create Room page
 }
 
 .submit-button:hover {
-  background-color: #4a8ae5;
+  background-color: var(--primary-hover);
+}
+
+/* ====================
+ Adding Media Queryies
+ ==================== */
+
+@media (max-width: 600px) {
+  .form-container {
+    max-width: 100%;
+  }
+  .create_room_container{
+    padding: 0 1rem;
+  }
 }

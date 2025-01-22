@@ -1,0 +1,21 @@
+.login-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    gap: 1rem;
+    color: black;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.heading{
+    font-family: sans-serif;
+    font-weight: normal;
+}

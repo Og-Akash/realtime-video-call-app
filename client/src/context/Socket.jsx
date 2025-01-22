@@ -8,7 +8,7 @@ const socketContext = createContext(null);
 const initSocket = async () => {
   const options = {
     'force new connection': true,
-    reconnectionAttempts: 'Infinity',
+    reconnectionAttempts: 5,
     timeout: 10000,
     transports: ["websocket"],
   };
