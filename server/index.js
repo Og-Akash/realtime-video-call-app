@@ -38,8 +38,16 @@ io.on("connection", (socket) => {
         socket.join(roomId);
         socket.emit(ACTIONS.JOINED, {roomId});
         socket.broadcast.to(roomId).emit(ACTIONS.USER_JOINED, {email, peerId});
+
     });
-    console.log(emailToSocketMapping)
+    socket.on(ACTIONS.USER_TOOGLE_AUDIO, ({roomId, myId}) => {
+        console.log(`user toogled his Audio of peer id:${myId} in room: ${roomId}`);
+        socket.broadcast.to(roomId).emit(ACTIONS.USER_TOOGLE_AUDIO, myId)
+    })
+    socket.on(ACTIONS.USER_TOOGLE_VIDEO, ({roomId, myId}) => {
+        console.log(`user toogled his video of peer id:${myId} in room: ${roomId}`);
+        socket.broadcast.to(roomId).emit(ACTIONS.USER_TOOGLE_VIDEO, myId)
+    })
 });
 
 //? listening on port

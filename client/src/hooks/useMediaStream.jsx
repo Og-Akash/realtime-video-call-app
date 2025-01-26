@@ -7,7 +7,7 @@ export function useMediaStream(selectedDeviceId) {
     const initStream = useCallback(
         async (deviceId) => {
             try {
-                console.log("Initializing stream with device ID:", deviceId);
+                // console.log("Initializing stream with device ID:", deviceId);
 
                 if (deviceId !== currentDeviceId.current) {
                     currentDeviceId.current = deviceId;
@@ -48,7 +48,7 @@ export function useMediaStream(selectedDeviceId) {
                 stream.getTracks().forEach((track) => track.stop());
             }
         };
-    }, [selectedDeviceId, initStream]);
+    }, [selectedDeviceId, initStream, stream]);
 
     return { stream, updateStream: initStream };
 }

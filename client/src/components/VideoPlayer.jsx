@@ -1,6 +1,6 @@
 import {useEffect, useRef} from "react";
 
-export default function VideoPlayer({stream, playing, muted, playerId}) {
+export default function VideoPlayer({stream, playing, muted, playerId,classNames}) {
     const videoRef = useRef(null);
 
     useEffect(() => {
@@ -10,16 +10,12 @@ export default function VideoPlayer({stream, playing, muted, playerId}) {
     }, [stream]);
 
     return (
-        <div style={{
-            border: "1px solid red",
-        }}>
         <video
             key={playerId}
             ref={videoRef}
             autoPlay={playing}
             muted={muted}
-            style={{width: "50%", height: "auto"}}
+            className={classNames}
         />
-        </div>
     );
 }

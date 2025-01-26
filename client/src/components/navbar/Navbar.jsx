@@ -13,7 +13,7 @@ export function Navbar() {
                     <button onClick={() => navigate("/login")} className="login-btn">Login</button>
                 ) : (
                     <div className="profile-container">
-                        <img className="profileImage" src={firebase?.currentUser?.photoURL} alt=""/>
+                        <img className="profileImage" src={firebase?.currentUser?.photoURL} alt="profile-image"/>
                         <button onClick={() => firebase.handleSignOut()} className="logout-btn">Logout</button>
                     </div>
                 )

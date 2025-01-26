@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 
 export function useAvailableDevices() {
-    const [devices, setDevices] = useState([]);
+    const [videoDevices, setVideoDevices] = useState([]);
+    const [audioDevices, setAudioDevices] = useState([]);
 
     useEffect(() => {
         async function getDevices() {
             try {
                 const deviceInfo = await navigator.mediaDevices.enumerateDevices()
-                setDevices(deviceInfo.filter(device => device.kind === "videoinput"))
+                setVideoDevices(deviceInfo.filter(device => device.kind === "videoinput"))
+                setAudioDevices(deviceInfo.filter(device => device.kind === "audioinput"))
             } catch (e) {
                 console.log("Error accessing devices: ", e);
             }
@@ -15,5 +17,8 @@ export function useAvailableDevices() {
         getDevices();
     }, []);
     // console.log("devices:", devices)
-    return devices; // Returns an array of video input devices
+    return {
+        videoDevices,
+        audioDevices
+    };
 }

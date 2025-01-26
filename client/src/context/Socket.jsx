@@ -6,13 +6,8 @@ const socketContext = createContext(null);
 
 // Socket initialization function with options
 const initSocket = async () => {
-  const options = {
-    'force new connection': true,
-    reconnectionAttempts: 5,
-    timeout: 10000,
-    transports: ["websocket"],
-  };
-  return io(import.meta.env.VITE_BACKEND_URL, options);  // Use your backend URL
+
+  return io(import.meta.env.VITE_BACKEND_URL); // Use your backend URL
 };
 
 // Socket Provider to manage socket connection
@@ -21,18 +16,13 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     const connectSocket = async () => {
-      const socketInstance = await initSocket();
+    const socketInstance = await initSocket();
       setSocket(socketInstance);
     };
 
     connectSocket();
 
-    // Cleanup the socket connection when the component unmounts
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
+
   }, []);
 
   // If socket is not initialized yet, render null or loading state

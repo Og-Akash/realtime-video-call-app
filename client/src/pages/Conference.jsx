@@ -10,10 +10,10 @@ import MeetingRoom from "@/components/meeting/Meeting.jsx";
 const Conference = () => {
     const { socket } = useSocket();
     const { peer, myId } = usePeer();
-    const { players, setPlayers } = usePlayers();
+    const { players, setPlayers,highlightedPlayer,nonHighlightedPlayers,toggleAudio } = usePlayers(myId);
     const [calls, setCalls] = useState({}); // Track ongoing calls
-    const devices = useAvailableDevices()
-    const [selectedDeviceId, setSelectedDeviceId] = useState(devices[0]?.deviceId);
+    const {videoDevices} = useAvailableDevices()
+    const [selectedDeviceId, setSelectedDeviceId] = useState(videoDevices[0]?.deviceId);
     const { stream, updateStream} = useMediaStream(selectedDeviceId); // Modified hook to support stream updates
 
     // Handle new user joining
@@ -130,79 +130,12 @@ const Conference = () => {
             },
         }));
     }, [myId, stream,setPlayers]);
-
-    useEffect(() => {
-        if (!stream || !calls) return;
-
-        Object.values(calls).forEach((call) => {
-            const sender = call.peerConnection
-                ?.getSenders()
-                ?.find((s) => s.track?.kind === "video");
-
-            if (sender) {
-                sender.replaceTrack(stream.getVideoTracks()[0]); // Replace video track
-                console.log(`Replaced video track for call with ${call.peer}`);
-            }
-        });
-
-        // Update local player's stream
-        setPlayers((prev) => ({
-            ...prev,
-            [myId]: {
-                ...prev[myId],
-                stream: stream,
-            },
-        }));
-    }, [stream, calls, myId, setPlayers]);
     //
-    console.log("players", players);
     return (
         <div>
-            {/* Video tags for each player */}
-            <SelectDevice
-                devices={devices}
-                selectedDeviceId={selectedDeviceId}
-                setSelectedDeviceId={setSelectedDeviceId}
-                onChangeDevice={(deviceId) => updateStream(deviceId)} // Update stream on device change
-            />
-            {/*{Object.keys(players).map((playerId) => {*/}
-            {/*    const { stream, muted, playing } = players[playerId];*/}
-            {/*    return (*/}
-            {/*        <VideoPlayer*/}
-            {/*            key={playerId}*/}
-            {/*            stream={stream}*/}
-            {/*            playerId={playerId}*/}
-            {/*            muted={muted}*/}
-            {/*            playing={playing}*/}
-            {/*        />*/}
-            {/*    );*/}
-            {/*})}*/}
-
-            <MeetingRoom players={players} />
+            <MeetingRoom calls={calls} myId={myId} toggleAudio={toggleAudio} players={players} highlightedPlayer={highlightedPlayer} nonHighlightedPlayers={nonHighlightedPlayers} setPlayers={setPlayers} />
         </div>
     );
 };
 
 export default Conference;
-
-function SelectDevice({ devices, selectedDeviceId, setSelectedDeviceId, onChangeDevice }) {
-    return (
-        <div>
-            <label>Select Camera:</label>
-            <select
-                onChange={(e) => {
-                    const deviceId = e.target.value;
-                    setSelectedDeviceId(deviceId);
-                    onChangeDevice(deviceId);
-                }}
-                value={selectedDeviceId || ""}
-            >
-                {devices?.map((device) => (
-                    <option key={device.deviceId} value={device.deviceId}>
-                        {device.label || `Camera ${device.deviceId}`}
-                    </option>
-                ))}
-            </select>
-        </div>
-    );
-}

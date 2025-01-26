@@ -19,11 +19,11 @@ const Router = createBrowserRouter([
                 path: "/create-room",
                 element: <CreateRoom/>,
             },
-            {
-                path: "/meeting/:roomId",
-                element: <Conference/>,
-            },
         ]
+    },
+    {
+        path: "/meeting/:roomId",
+        element: <Conference/>,
     },
 
     {
