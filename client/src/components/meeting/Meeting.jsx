@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Video,
   VideoOff,
@@ -24,15 +24,12 @@ import { usePlayers } from "@/hooks/usePlayers.jsx";
 const MeetingRoom = ({
   calls,
   myId,
-  toggleAudio,
   players,
   highlightedPlayer,
   nonHighlightedPlayers,
   setPlayers,
 }) => {
   const [mediaState, setMediaState] = useState({
-    isMuted: false,
-    isVideoOff: false,
     showParticipants: false,
   });
   const { videoDevices, audioDevices } = useAvailableDevices();
@@ -41,6 +38,7 @@ const MeetingRoom = ({
   );
   const { stream, updateStream } = useMediaStream(selectedDeviceId);
   const [currentTime, setCurrentTime] = useState("");
+  const { toggleAudio, toggleVideo } = usePlayers(myId);
   const [currentPlayers, setCurrentPlayers] = useState(null);
   const location = useLocation();
   const { roomId } = useParams();
@@ -49,47 +47,49 @@ const MeetingRoom = ({
     video: false,
   });
 
+// Memoize user media states
+const userMediaState = useMemo(() => {
+  
+  return {
+    isCurrentUserMuted: players[myId]?.muted || false,
+    isCurrentUserVideoOff: !players[myId]?.playing || false
+  };
+}, [players, myId]);
+
   // Mock participants data
   const participants = [
     { id: 1, name: "Akash Ghosh", isMuted: false, isVideoOff: false },
-    {
-      id: 2,
-      name: "Jane Smith",
-      isMuted: false,
-      isVideoOff: false,
-    },
+    { id: 2, name: "Jane Smith", isMuted: false, isVideoOff: false },
     { id: 3, name: "Mike Johnson", isMuted: false, isVideoOff: true },
   ];
 
   useEffect(() => {
     const updateCurrentTime = () => {
       const time = new Date();
-      const hours = time.getHours() % 12 || 12; // Convert 24-hour time to 12-hour
+      const hours = time.getHours() % 12 || 12;
       const minutes = time.getMinutes().toString().padStart(2, "0");
       const ampm = time.getHours() < 12 ? "AM" : "PM";
       return `${hours}:${minutes} ${ampm}`;
     };
 
-    setCurrentTime(updateCurrentTime()); // Set the initial time
+    setCurrentTime(updateCurrentTime());
 
     const intervalId = setInterval(() => {
       setCurrentTime(updateCurrentTime());
-    }, 60000); // Update every minute
+    }, 60000);
 
-    return () => clearInterval(intervalId); // Cleanup interval on unmount
-  }, []); // Empty dependency array to prevent re-runs
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
-    // Filter players whenever `players` changes
-    if (players == null) return;
-    const filteredPlayers = Object.keys(players)
-      .filter((playerId) => playerId !== "" && players !== players[myId])
-      .map((playerId) => players[playerId]);
+    if (highlightedPlayer == null) return;
+    const filteredPlayers = Object.keys(highlightedPlayer)
+      .filter((playerId) => playerId !== "" && highlightedPlayer[playerId]?.stream)
+      .map((playerId) => highlightedPlayer[playerId]);
 
-    setCurrentPlayers(filteredPlayers); // Update the state with the filtered list
-  }, [players]); // Dependency array
+    setCurrentPlayers(filteredPlayers);
+  }, [highlightedPlayer]);
 
-  // Changing the video stream when user change the device.
   useEffect(() => {
     if (!stream || !calls) return;
 
@@ -99,12 +99,10 @@ const MeetingRoom = ({
         ?.find((s) => s.track?.kind === "video");
 
       if (sender) {
-        sender.replaceTrack(stream.getVideoTracks()[0]); // Replace video track
-        // console.log(`Replaced video track for call with ${call.peer}`);
+        sender.replaceTrack(stream.getVideoTracks()[0]);
       }
     });
 
-    // Update local player's stream
     setPlayers((prev) => ({
       ...prev,
       [myId]: {
@@ -116,10 +114,12 @@ const MeetingRoom = ({
 
   const handleToogleDeviceList = (deviceType) => {
     setToogleDeviceBox((prev) => ({
-      prev: false,
+      audio: false,
+      video: false,
       [deviceType]: !prev[deviceType],
     }));
   };
+
 
   return (
     <div className="meeting-container">
@@ -128,13 +128,12 @@ const MeetingRoom = ({
           mediaState.showParticipants ? "with-sidebar" : ""
         }`}
       >
-        {/* Video Player for the room */}
         {nonHighlightedPlayers && (
           <div>
             <VideoPlayer
               stream={nonHighlightedPlayers.stream}
               muted={nonHighlightedPlayers.muted}
-              playing={!mediaState.isVideoOff && nonHighlightedPlayers.playing}
+              playing={!userMediaState.isCurrentUserVideoOff && nonHighlightedPlayers.playing}
               classNames="highlighted-video-player"
             />
           </div>
@@ -144,23 +143,22 @@ const MeetingRoom = ({
             const { stream, muted, playing } = player;
             return (
               <div key={index} className="video-container main-video">
-                {!mediaState.isVideoOff ? (
+                {!userMediaState.isCurrentUserVideoOff ? (
                   <VideoPlayer
                     stream={stream}
                     playerId={index}
                     muted={muted}
-                    playing={!mediaState.isVideoOff && playing}
+                    playing={!userMediaState.isCurrentUserVideoOff && playing}
                     classNames="video-player"
                   />
                 ) : (
                   <div className="video-placeholder">
-                    {/*<Video className="video-icon"/>*/}
                     <Avatar name={"Yash"} />
                   </div>
                 )}
                 <div className="video-info">
                   <span className="participant-name">Akash Ghosh (You)</span>
-                  {mediaState.isMuted && (
+                  {userMediaState.isCurrentUserMuted && (
                     <MicOff className="status-icon" size={16} />
                   )}
                 </div>
@@ -172,20 +170,17 @@ const MeetingRoom = ({
           })}
         </div>
 
-        {/* Making the Controls for the room */}
         <div className="meeting-controls">
           <div className="controls-left">
             <span className="meeting-time">{currentTime}</span>
           </div>
-
-          {/* DropDown to Media Select Devices */}
 
           {toogleDeviceBox["audio"] ? (
             <SelectDevice
               devices={audioDevices}
               selectedDeviceId={selectedDeviceId}
               setSelectedDeviceId={setSelectedDeviceId}
-              onChangeDevice={(deviceId) => updateStream(deviceId)} // Update stream on device change
+              onChangeDevice={updateStream}
               setToogleDeviceBox={setToogleDeviceBox}
             />
           ) : toogleDeviceBox["video"] ? (
@@ -193,7 +188,7 @@ const MeetingRoom = ({
               devices={videoDevices}
               selectedDeviceId={selectedDeviceId}
               setSelectedDeviceId={setSelectedDeviceId}
-              onChangeDevice={(deviceId) => updateStream(deviceId)} // Update stream on device change
+              onChangeDevice={updateStream}
               setToogleDeviceBox={setToogleDeviceBox}
             />
           ) : null}
@@ -201,7 +196,7 @@ const MeetingRoom = ({
           <div className="controls-center">
             <div
               className="control-button"
-              title={mediaState.isMuted ? "muted" : "mic on"}
+              title={userMediaState.isCurrentUserMuted ? "Unmute" : "Mute"}
             >
               <div className="control-button-options">
                 <button
@@ -211,18 +206,20 @@ const MeetingRoom = ({
                   {toogleDeviceBox.audio ? <ChevronDown /> : <ChevronUp />}
                 </button>
                 <button
-                  className={`${mediaState.isMuted ? "active" : ""}`}
-                  onClick={toggleAudio}
+                  className={`${userMediaState.isCurrentUserMuted ? "active" : ""}`}
+                  onClick={() => toggleAudio(players)}
                 >
-                  {mediaState.isMuted ? <MicOff /> : <Mic />}
+                  {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
                 </button>
               </div>
-              <span className="button-label">Mute Mic</span>
+              <span className="button-label">
+                {userMediaState.isCurrentUserMuted ? "Unmute" : "Mute"}
+              </span>
             </div>
 
             <div
               className="control-button"
-              title={mediaState.isMuted ? "Stop Video" : "On Video"}
+              title={userMediaState.isCurrentUserVideoOff ? "Start Video" : "Stop Video"}
             >
               <div className="control-button-options">
                 <button
@@ -232,23 +229,21 @@ const MeetingRoom = ({
                   {toogleDeviceBox.video ? <ChevronDown /> : <ChevronUp />}
                 </button>
                 <button
-                  className={`${mediaState.isVideoOff ? "active" : ""}`}
-                  onClick={() =>
-                    setMediaState((prev) => ({
-                      ...prev,
-                      isVideoOff: !prev.isVideoOff,
-                    }))
-                  }
+                  className={`${userMediaState.isCurrentUserVideoOff ? "active" : ""}`}
+                  onClick={() => toggleVideo(players)}
                 >
-                  {mediaState.isVideoOff ? (
+                  {userMediaState.isCurrentUserVideoOff ? (
                     <VideoOff size={24} />
                   ) : (
                     <Video size={24} />
                   )}
                 </button>
               </div>
-              <span className="button-label">Stop Video</span>
+              <span className="button-label">
+                {userMediaState.isCurrentUserVideoOff ? "Start Video" : "Stop Video"}
+              </span>
             </div>
+
             <div className="control-button" title="Open Chat">
               <MessageSquare size={24} />
               <span className="button-label">Chat</span>
@@ -328,15 +323,13 @@ const MeetingRoom = ({
   );
 };
 
-export default MeetingRoom;
-
-function SelectDevice({
+const SelectDevice = ({
   setToogleDeviceBox,
   devices,
   selectedDeviceId,
   setSelectedDeviceId,
   onChangeDevice,
-}) {
+}) => {
   return (
     <div
       style={{
@@ -367,4 +360,6 @@ function SelectDevice({
       </select>
     </div>
   );
-}
+};
+
+export default MeetingRoom;

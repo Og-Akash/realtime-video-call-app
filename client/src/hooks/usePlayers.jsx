@@ -1,59 +1,66 @@
 import { useState } from "react";
-import { cloneDeep, update } from "lodash";
+import { cloneDeep } from "lodash";
 import { useSocket } from "@/context/Socket.jsx";
 import { ACTIONS } from "@/actions.js";
 import { useParams } from "react-router-dom";
 
 export function usePlayers(myId) {
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState({});
   const { socket } = useSocket();
   const { roomId } = useParams();
+
+  // Create copies of players for different views
   const playerCopy = cloneDeep(players);
-  const nonHighlightedPlayers = playerCopy[myId];
-  delete playerCopy[myId];
+  const nonHighlightedPlayers = players[myId] ? { [myId]: players[myId] } : {};
+  const highlightedPlayer = (() => {
+    const copy = { ...players };
+    delete copy[myId];
+    return copy;
+  })();
 
-  const highlightedPlayer = playerCopy;
+  const toggleAudio = (currentPlayers) => {
+    console.log("toggle audio player");
 
-  const toggleAudio = () => {
-    console.log("toogle audio player");
-
-    function checkThePlayerAndUpdateHisMic() {
-        console.log("current players: ", playerCopy)
-      const user = playerCopy[myId];
-      if (!user) {
+    setPlayers(prevPlayers => {
+      if (!currentPlayers[myId]) {
         console.error("Player not found:", myId);
-        return user;
+        return currentPlayers;
       }
 
-      const updatedUser = { ...playerCopy };
-      updatedUser[myId] = {
-        ...updatedPlayers[myId],
-        muted: !updatedPlayers[myId].muted,
-      };
-      setPlayers(updatedUser);
-    }
-    checkThePlayerAndUpdateHisMic();
-    socket.emit(ACTIONS.USER_TOOGLE_AUDIO, { myId, roomId });
-
-    return () => checkThePlayerAndUpdateHisMic();
-  };
-
-  const toggleVideo = () => {
-    setPlayers((prev) => {
-      if (!prev || !prev[myId]) {
-        console.error("Player not found:", myId);
-        return prev;
-      }
-
-      const updatedPlayers = { ...prev };
-      updatedPlayers[myId] = {
-        ...updatedPlayers[myId],
-        playing: !updatedPlayers[myId].playing,
+      const updatedPlayers = {
+        ...currentPlayers,
+        [myId]: {
+          ...currentPlayers[myId],
+          muted: !currentPlayers[myId].muted,
+        },
       };
 
+      // Emit the event after state update
       return updatedPlayers;
     });
+    socket.emit(ACTIONS.USER_TOOGLE_AUDIO, { myId, roomId });
+  };
 
+  const toggleVideo = (currentPlayers) => {
+    console.log("toggle audio player");
+
+    setPlayers(prevPlayers => {
+      if (!currentPlayers[myId]) {
+        console.error("Player not found:", myId);
+        return currentPlayers;
+      }
+
+      const updatedPlayers = {
+        ...currentPlayers,
+        [myId]: {
+          ...currentPlayers[myId],
+          playing: !currentPlayers[myId].playing,
+        },
+      };
+
+      // Emit the event after state update
+      return updatedPlayers;
+    });
     socket.emit(ACTIONS.USER_TOOGLE_VIDEO, { myId, roomId });
   };
 

@@ -3,6 +3,10 @@
     height: 5rem;
     justify-content: space-between;
     padding: 1rem 4rem;
+
+    h1{
+        cursor: pointer;
+    }
 }
 .profile-container{
     display: flex;

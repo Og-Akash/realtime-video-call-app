@@ -7,7 +7,7 @@ export function Navbar() {
     const navigate = useNavigate();
     return (
         <div className="navbar-container">
-            <h1>Video-Caller</h1>
+            <h1 onClick={() => navigate("/")}>Video-Caller</h1>
             {
                 !firebase?.currentUser ? (
                     <button onClick={() => navigate("/login")} className="login-btn">Login</button>
