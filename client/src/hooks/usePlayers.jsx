@@ -11,9 +11,9 @@ export function usePlayers(myId) {
 
   // Create copies of players for different views
   const playerCopy = cloneDeep(players);
-  const nonHighlightedPlayers = players[myId] ? { [myId]: players[myId] } : {};
+  const nonHighlightedPlayers = playerCopy[myId];
   const highlightedPlayer = (() => {
-    const copy = { ...players };
+    const copy = cloneDeep(players);
     delete copy[myId];
     return copy;
   })();
@@ -42,7 +42,7 @@ export function usePlayers(myId) {
   };
 
   const toggleVideo = (currentPlayers) => {
-    console.log("toggle audio player");
+    console.log("toggle video player");
 
     setPlayers(prevPlayers => {
       if (!currentPlayers[myId]) {

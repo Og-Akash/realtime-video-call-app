@@ -1,6 +1,7 @@
 /* Meeting Room Styles */
 .meeting-container {
     display: flex;
+    width: 100vw;
     height: 100vh;
     background-color: var(--background);
     color: var(--text);
@@ -40,18 +41,24 @@
     /*overflow: hidden;*/
 }
 
-.highlighted-video-player{
+.highlighted-video-player {
     position: absolute;
-    bottom: 8rem;
-    right: 1rem;
+    bottom: 7rem;
+    right: 10px;
     width: 20rem;
     height: 15rem;
     background-color: var(--surface);
     border-radius: 1rem;
-    /*overflow: hidden;*/
     border: 4px solid var(--primary);
     padding: 0.5rem;
     z-index: 3;
+}
+
+.highlighted-video-player-container svg {
+    position: absolute;
+    bottom: 8rem;
+    right: 20px;
+    z-index: 4;
 }
 
 .video-player {
@@ -125,7 +132,7 @@
     flex: 1;
 }
 
-.select-devices{
+.select-devices {
     background: #2d2d2d;
     color: var(--text);
     padding: 0.5rem 1rem;
@@ -180,8 +187,8 @@
     cursor: pointer;
 }
 
-.control-button-options-arrow:hover > svg{
-  color: var(--text-secondary);
+.control-button-options-arrow:hover>svg {
+    color: var(--text-secondary);
 }
 
 .control-button-options button.active {
@@ -228,7 +235,8 @@
     padding: 5px;
     border-radius: 4px;
     position: absolute;
-    bottom: 125%; /* Adjust based on button position */
+    bottom: 125%;
+    /* Adjust based on button position */
     left: 50%;
     transform: translateX(-50%);
     white-space: nowrap;
@@ -243,7 +251,8 @@
 }
 
 
-.meeting-time, .meeting-id {
+.meeting-time,
+.meeting-id {
     font-size: 0.875rem;
     color: var(--text-secondary);
 }
@@ -348,7 +357,8 @@
         padding: 1rem;
     }
 
-    .controls-left, .controls-right {
+    .controls-left,
+    .controls-right {
         display: none;
     }
 

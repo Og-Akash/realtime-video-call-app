@@ -47,14 +47,13 @@ const MeetingRoom = ({
     video: false,
   });
 
-// Memoize user media states
-const userMediaState = useMemo(() => {
-  
-  return {
-    isCurrentUserMuted: players[myId]?.muted || false,
-    isCurrentUserVideoOff: !players[myId]?.playing || false
-  };
-}, [players, myId]);
+  // Memoize user media states
+  const userMediaState = useMemo(() => {
+    return {
+      isCurrentUserMuted: players[myId]?.muted || false,
+      isCurrentUserVideoOff: !players[myId]?.playing || false,
+    };
+  }, [players, myId]);
 
   // Mock participants data
   const participants = [
@@ -84,7 +83,9 @@ const userMediaState = useMemo(() => {
   useEffect(() => {
     if (highlightedPlayer == null) return;
     const filteredPlayers = Object.keys(highlightedPlayer)
-      .filter((playerId) => playerId !== "" && highlightedPlayer[playerId]?.stream)
+      .filter(
+        (playerId) => playerId !== "" && highlightedPlayer[playerId]?.stream
+      )
       .map((playerId) => highlightedPlayer[playerId]);
 
     setCurrentPlayers(filteredPlayers);
@@ -120,7 +121,6 @@ const userMediaState = useMemo(() => {
     }));
   };
 
-
   return (
     <div className="meeting-container">
       <div
@@ -129,13 +129,23 @@ const userMediaState = useMemo(() => {
         }`}
       >
         {nonHighlightedPlayers && (
-          <div>
-            <VideoPlayer
-              stream={nonHighlightedPlayers.stream}
-              muted={nonHighlightedPlayers.muted}
-              playing={!userMediaState.isCurrentUserVideoOff && nonHighlightedPlayers.playing}
-              classNames="highlighted-video-player"
-            />
+          <div className="highlighted-video-player-container">
+            {userMediaState.isCurrentUserVideoOff ? (
+              <div className="video-placeholder">
+                <Avatar name={"Yash"} />
+              </div>
+            ) : (
+              <VideoPlayer
+                stream={nonHighlightedPlayers.stream}
+                muted={nonHighlightedPlayers.muted}
+                playing={
+                  !userMediaState.isCurrentUserVideoOff &&
+                  nonHighlightedPlayers.playing
+                }
+                classNames="highlighted-video-player"
+              />
+            )}
+            {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
           </div>
         )}
         <div className="video-grid">
@@ -143,7 +153,7 @@ const userMediaState = useMemo(() => {
             const { stream, muted, playing } = player;
             return (
               <div key={index} className="video-container main-video">
-                {!userMediaState.isCurrentUserVideoOff ? (
+                {playing ? (
                   <VideoPlayer
                     stream={stream}
                     playerId={index}
@@ -158,8 +168,10 @@ const userMediaState = useMemo(() => {
                 )}
                 <div className="video-info">
                   <span className="participant-name">Akash Ghosh (You)</span>
-                  {userMediaState.isCurrentUserMuted && (
+                  {muted ? (
                     <MicOff className="status-icon" size={16} />
+                  ) : (
+                    <Mic className="status-icon" size={16} />
                   )}
                 </div>
                 <button className="pin-button">
@@ -206,8 +218,22 @@ const userMediaState = useMemo(() => {
                   {toogleDeviceBox.audio ? <ChevronDown /> : <ChevronUp />}
                 </button>
                 <button
-                  className={`${userMediaState.isCurrentUserMuted ? "active" : ""}`}
-                  onClick={() => toggleAudio(players)}
+                  className={`${
+                    userMediaState.isCurrentUserMuted ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    toggleAudio(players);
+                    setPlayers((prev) => {
+                      const updatedPlayers = {
+                        ...prev,
+                        [myId]: {
+                          ...prev[myId],
+                          muted: !prev[myId].muted,
+                        },
+                      };
+                      return updatedPlayers;
+                    });
+                  }}
                 >
                   {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
                 </button>
@@ -219,7 +245,11 @@ const userMediaState = useMemo(() => {
 
             <div
               className="control-button"
-              title={userMediaState.isCurrentUserVideoOff ? "Start Video" : "Stop Video"}
+              title={
+                userMediaState.isCurrentUserVideoOff
+                  ? "Start Video"
+                  : "Stop Video"
+              }
             >
               <div className="control-button-options">
                 <button
@@ -229,8 +259,22 @@ const userMediaState = useMemo(() => {
                   {toogleDeviceBox.video ? <ChevronDown /> : <ChevronUp />}
                 </button>
                 <button
-                  className={`${userMediaState.isCurrentUserVideoOff ? "active" : ""}`}
-                  onClick={() => toggleVideo(players)}
+                  className={`${
+                    userMediaState.isCurrentUserVideoOff ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    toggleVideo(players);
+                    setPlayers((prev) => {
+                      const updatedPlayers = {
+                        ...prev,
+                        [myId]: {
+                          ...prev[myId],
+                          playing: !prev[myId].playing,
+                        },
+                      };
+                      return updatedPlayers;
+                    });
+                  }}
                 >
                   {userMediaState.isCurrentUserVideoOff ? (
                     <VideoOff size={24} />
@@ -240,7 +284,9 @@ const userMediaState = useMemo(() => {
                 </button>
               </div>
               <span className="button-label">
-                {userMediaState.isCurrentUserVideoOff ? "Start Video" : "Stop Video"}
+                {userMediaState.isCurrentUserVideoOff
+                  ? "Start Video"
+                  : "Stop Video"}
               </span>
             </div>
 

@@ -7,6 +7,7 @@ import { useMediaStream } from "@/hooks/useMediaStream.jsx";
 import { useAvailableDevices } from "@/hooks/useMediaDevices.jsx";
 import MeetingRoom from "@/components/meeting/Meeting.jsx";
 import { cloneDeep } from "lodash";
+import { LoaderCircle } from 'lucide-react';
 
 const Conference = () => {
   const { socket } = useSocket();
@@ -18,7 +19,27 @@ const Conference = () => {
   const [selectedDeviceId, setSelectedDeviceId] = useState(
     videoDevices[0]?.deviceId
   );
-  const { stream } = useMediaStream(selectedDeviceId); // Modified hook to support stream updates
+  const { stream, updateStream } = useMediaStream(selectedDeviceId); // Modified hook to support stream updates
+  const [isLoading, setIsLoading] = useState(true);
+
+  //? show the loader if until the peer connection is established
+  useEffect(() => {
+    if (!peer) {
+      return;
+    }
+
+    const handlePeerReady = () => {
+      console.log("peer connection established");
+      setIsLoading(false);
+    };
+
+    peer.on("open", handlePeerReady);
+
+    peer.on("error",()=> console.log("error while connecting")
+    )
+
+    return () => peer.off("open", handlePeerReady);
+  }, [peer]);
 
   // Handle new user joining
   useEffect(() => {
@@ -73,7 +94,7 @@ const Conference = () => {
     };
   }, [peer, stream, socket, myId, players, calls, setPlayers]);
 
-  // Handle incoming calls
+  //? Handle incoming calls
   useEffect(() => {
     if (!peer) return;
 
@@ -120,7 +141,7 @@ const Conference = () => {
     };
   }, [peer, stream, myId, players, setPlayers]);
 
-  // Add local user to players
+  //? Add local user to players
   useEffect(() => {
     if (!myId || !stream || !setPlayers) return;
 
@@ -138,9 +159,9 @@ const Conference = () => {
 
   useEffect(() => {
     if (!socket) return;
-  
+
     let mounted = true;
-  
+
     function toggleMic(userId) {
       if (!mounted) return;
       console.log(`User toggled their mic: ${userId}`);
@@ -150,7 +171,7 @@ const Conference = () => {
         return copy;
       });
     }
-  
+
     function toggleVideo(userId) {
       if (!mounted) return;
       console.log(`User toggled their video: ${userId}`);
@@ -160,17 +181,26 @@ const Conference = () => {
         return copy;
       });
     }
-  
+
     socket.on(ACTIONS.USER_TOOGLE_AUDIO, toggleMic);
     socket.on(ACTIONS.USER_TOOGLE_VIDEO, toggleVideo);
-  
+
     return () => {
       mounted = false;
       socket.off(ACTIONS.USER_TOOGLE_AUDIO, toggleMic);
       socket.off(ACTIONS.USER_TOOGLE_VIDEO, toggleVideo);
     };
   }, [socket]);
-  
+
+  if (isLoading) {
+    return (
+      <div className="loader-container">
+       <LoaderCircle className="loader" color="#7C3AED"/>
+        <p>Joining The Room...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <MeetingRoom
