@@ -2,12 +2,13 @@ import { useState } from "react";
 import { cloneDeep } from "lodash";
 import { useSocket } from "@/context/Socket.jsx";
 import { ACTIONS } from "@/actions.js";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export function usePlayers(myId) {
+export function usePlayers(myId,peer) {
   const [players, setPlayers] = useState({});
   const { socket } = useSocket();
   const { roomId } = useParams();
+  const navigate = useNavigate()
 
   // Create copies of players for different views
   const playerCopy = cloneDeep(players);
@@ -18,6 +19,14 @@ export function usePlayers(myId) {
     return copy;
   })();
 
+  //? leave room function when a user disconnects
+  const leaveRoom = () =>{
+    socket.emit(ACTIONS.USER_LEAVE, {myId, roomId})
+    peer?.disconnect()
+    navigate("/")
+  }
+
+    //? Toggle Audio Device 
   const toggleAudio = (currentPlayers) => {
     console.log("toggle audio player");
 
@@ -41,6 +50,7 @@ export function usePlayers(myId) {
     socket.emit(ACTIONS.USER_TOOGLE_AUDIO, { myId, roomId });
   };
 
+   //? Toggle Video Devicec
   const toggleVideo = (currentPlayers) => {
     console.log("toggle video player");
 
@@ -71,5 +81,6 @@ export function usePlayers(myId) {
     nonHighlightedPlayers,
     toggleAudio,
     toggleVideo,
+    leaveRoom
   };
 }

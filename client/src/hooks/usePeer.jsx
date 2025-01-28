@@ -31,7 +31,7 @@ export function usePeer() {
             console.log("Peer ID: ", id);
             setMyId(id);
 
-            // Notify backend of new user
+            //* Notify backend that new user is joined
             if (socket) {
                 socket.emit(ACTIONS.JOIN, {
                     roomId,

@@ -7,13 +7,13 @@ import { useMediaStream } from "@/hooks/useMediaStream.jsx";
 import { useAvailableDevices } from "@/hooks/useMediaDevices.jsx";
 import MeetingRoom from "@/components/meeting/Meeting.jsx";
 import { cloneDeep } from "lodash";
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from "lucide-react";
 
 const Conference = () => {
   const { socket } = useSocket();
   const { peer, myId } = usePeer();
   const { players, setPlayers, highlightedPlayer, nonHighlightedPlayers } =
-    usePlayers(myId);
+    usePlayers(myId, peer);
   const [calls, setCalls] = useState({}); // Track ongoing calls
   const { videoDevices } = useAvailableDevices();
   const [selectedDeviceId, setSelectedDeviceId] = useState(
@@ -35,8 +35,7 @@ const Conference = () => {
 
     peer.on("open", handlePeerReady);
 
-    peer.on("error",()=> console.log("error while connecting")
-    )
+    peer.on("error", () => console.log("error while connecting"));
 
     return () => peer.off("open", handlePeerReady);
   }, [peer]);
@@ -155,15 +154,11 @@ const Conference = () => {
     }));
   }, [myId, stream, setPlayers]);
 
-  //? event to check the user toggle his mic and video
-
+  //? event to check the user toggle his mic, video & leave the room
   useEffect(() => {
     if (!socket) return;
 
-    let mounted = true;
-
     function toggleMic(userId) {
-      if (!mounted) return;
       console.log(`User toggled their mic: ${userId}`);
       setPlayers((prev) => {
         const copy = cloneDeep(prev);
@@ -173,7 +168,6 @@ const Conference = () => {
     }
 
     function toggleVideo(userId) {
-      if (!mounted) return;
       console.log(`User toggled their video: ${userId}`);
       setPlayers((prev) => {
         const copy = cloneDeep(prev);
@@ -182,20 +176,29 @@ const Conference = () => {
       });
     }
 
+    function toggleLeave(userId) {
+      console.log(`user with id ${userId} leave the room.`);
+      alert(`user with id ${userId} leave the room`);
+      const updatedPlayer = cloneDeep(players);
+      delete updatedPlayer[userId];
+      setPlayers(updatedPlayer);
+    }
+
     socket.on(ACTIONS.USER_TOOGLE_AUDIO, toggleMic);
     socket.on(ACTIONS.USER_TOOGLE_VIDEO, toggleVideo);
+    socket.on(ACTIONS.USER_LEAVE, toggleLeave);
 
     return () => {
-      mounted = false;
       socket.off(ACTIONS.USER_TOOGLE_AUDIO, toggleMic);
       socket.off(ACTIONS.USER_TOOGLE_VIDEO, toggleVideo);
+      socket.on(ACTIONS.USER_LEAVE, toggleLeave);
     };
-  }, [socket]);
+  }, [socket, setPlayers]);
 
   if (isLoading) {
     return (
       <div className="loader-container">
-       <LoaderCircle className="loader" color="#7C3AED"/>
+        <LoaderCircle className="loader" color="#7C3AED" />
         <p>Joining The Room...</p>
       </div>
     );

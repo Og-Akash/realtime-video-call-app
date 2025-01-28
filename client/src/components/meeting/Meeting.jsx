@@ -38,7 +38,7 @@ const MeetingRoom = ({
   );
   const { stream, updateStream } = useMediaStream(selectedDeviceId);
   const [currentTime, setCurrentTime] = useState("");
-  const { toggleAudio, toggleVideo } = usePlayers(myId);
+  const { toggleAudio, toggleVideo, leaveRoom } = usePlayers(myId);
   const [currentPlayers, setCurrentPlayers] = useState(null);
   const location = useLocation();
   const { roomId } = useParams();
@@ -316,7 +316,7 @@ const MeetingRoom = ({
               <span className="button-label">More</span>
             </button>
 
-            <button className="control-button end-call" title="End Call">
+            <button className="control-button end-call" title="End Call" onClick={leaveRoom}>
               <PhoneOff size={20} />
               <span className="button-label">End</span>
             </button>
