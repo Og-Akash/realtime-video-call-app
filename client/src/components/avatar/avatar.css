@@ -1,15 +1,29 @@
-.avatar{
-    width:8rem;
-    height:8rem;
-    border-radius:50%;
-    background-color:#444;
-    display:flex;
+.avatar {
+    border-radius: 50%;
+    background-color: #444;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.avatar-text{
-    font-size:5rem;
-    color:var(--text);
+.avatar.big {
+    width: 8rem;
+    height: 8rem;
+}
+
+.avatar.small {
+    width: 4rem;
+    height: 4rem;
+}
+
+.avatar-text {
+    color: var(--text);
     font-family: 'Inter', sans-serif;
+}
+
+.avatar-text.big{
+    font-size: 5rem;
+}
+.avatar-text.small{
+    font-size: 2.5rem;
 }

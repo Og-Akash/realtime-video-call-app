@@ -123,36 +123,37 @@ const MeetingRoom = ({
 
   return (
     <div className="meeting-container">
-      <div
-        className={`meeting-content ${
-          mediaState.showParticipants ? "with-sidebar" : ""
-        }`}
-      >
-        {nonHighlightedPlayers && (
-          <div className="highlighted-video-player-container">
-            {userMediaState.isCurrentUserVideoOff ? (
-              <div className="video-placeholder">
-                <Avatar name={"Yash"} />
-              </div>
-            ) : (
-              <VideoPlayer
-                stream={nonHighlightedPlayers.stream}
-                muted={nonHighlightedPlayers.muted}
-                playing={
-                  !userMediaState.isCurrentUserVideoOff &&
-                  nonHighlightedPlayers.playing
-                }
-                classNames="highlighted-video-player"
-              />
-            )}
-            {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
-          </div>
-        )}
-        <div className="video-grid">
+      <div className={`meeting-content`}>
+        <div
+          className={`video-grid ${
+            mediaState.showParticipants ? "with-sidebar" : ""
+          }`}
+        >
+          {nonHighlightedPlayers && (
+            <div className="nonhighlighted-video-player-container">
+              {userMediaState.isCurrentUserVideoOff ? (
+                <div className="video-placeholder">
+                  <Avatar name={"Yash"} className="small" />
+                </div>
+              ) : (
+                <VideoPlayer
+                  stream={nonHighlightedPlayers.stream}
+                  muted={nonHighlightedPlayers.muted}
+                  playing={
+                    !userMediaState.isCurrentUserVideoOff &&
+                    nonHighlightedPlayers.playing
+                  }
+                  classNames="nonhighlighted-video-player"
+                />
+              )}
+              <span className="currrentUser-name">John Doe</span>
+              {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
+            </div>
+          )}
           {currentPlayers?.map((player, index) => {
             const { stream, muted, playing } = player;
             return (
-              <div key={index} className="video-container main-video">
+              <div key={index} className="main-video-container">
                 {playing ? (
                   <VideoPlayer
                     stream={stream}
@@ -163,7 +164,7 @@ const MeetingRoom = ({
                   />
                 ) : (
                   <div className="video-placeholder">
-                    <Avatar name={"Yash"} />
+                    <Avatar name={"Yash"} className="big" />
                   </div>
                 )}
                 <div className="video-info">
@@ -215,10 +216,14 @@ const MeetingRoom = ({
                   onClick={() => handleToogleDeviceList("audio")}
                   className="control-button-options-arrow"
                 >
-                  {toogleDeviceBox.audio ? <ChevronDown /> : <ChevronUp />}
+                  {toogleDeviceBox.audio ? (
+                    <ChevronDown className="icon" />
+                  ) : (
+                    <ChevronUp className="icon" />
+                  )}
                 </button>
                 <button
-                  className={`${
+                  className={`control-button ${
                     userMediaState.isCurrentUserMuted ? "active" : ""
                   }`}
                   onClick={() => {
@@ -235,91 +240,90 @@ const MeetingRoom = ({
                     });
                   }}
                 >
-                  {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
-                </button>
-              </div>
-              <span className="button-label">
-                {userMediaState.isCurrentUserMuted ? "Unmute" : "Mute"}
-              </span>
-            </div>
-
-            <div
-              className="control-button"
-              title={
-                userMediaState.isCurrentUserVideoOff
-                  ? "Start Video"
-                  : "Stop Video"
-              }
-            >
-              <div className="control-button-options">
-                <button
-                  onClick={() => handleToogleDeviceList("video")}
-                  className="control-button-options-arrow"
-                >
-                  {toogleDeviceBox.video ? <ChevronDown /> : <ChevronUp />}
-                </button>
-                <button
-                  className={`${
-                    userMediaState.isCurrentUserVideoOff ? "active" : ""
-                  }`}
-                  onClick={() => {
-                    toggleVideo(players);
-                    setPlayers((prev) => {
-                      const updatedPlayers = {
-                        ...prev,
-                        [myId]: {
-                          ...prev[myId],
-                          playing: !prev[myId].playing,
-                        },
-                      };
-                      return updatedPlayers;
-                    });
-                  }}
-                >
-                  {userMediaState.isCurrentUserVideoOff ? (
-                    <VideoOff size={24} />
+                  {userMediaState.isCurrentUserMuted ? (
+                    <MicOff className="icon" />
                   ) : (
-                    <Video size={24} />
+                    <Mic className="icon" />
                   )}
                 </button>
               </div>
-              <span className="button-label">
-                {userMediaState.isCurrentUserVideoOff
-                  ? "Start Video"
-                  : "Stop Video"}
-              </span>
             </div>
 
-            <div className="control-button" title="Open Chat">
-              <MessageSquare size={24} />
-              <span className="button-label">Chat</span>
+            <div className="control-button-options">
+              <button
+                onClick={() => handleToogleDeviceList("video")}
+                className="control-button-options-arrow"
+              >
+                {toogleDeviceBox.video ? (
+                  <ChevronDown className="icon" />
+                ) : (
+                  <ChevronUp className="icon" />
+                )}
+              </button>
+              <button
+                className={`control-button ${
+                  userMediaState.isCurrentUserVideoOff ? "active" : ""
+                }`}
+                onClick={() => {
+                  toggleVideo(players);
+                  setPlayers((prev) => {
+                    const updatedPlayers = {
+                      ...prev,
+                      [myId]: {
+                        ...prev[myId],
+                        playing: !prev[myId].playing,
+                      },
+                    };
+                    return updatedPlayers;
+                  });
+                }}
+              >
+                {userMediaState.isCurrentUserVideoOff ? (
+                  <VideoOff size={24} className="icon" />
+                ) : (
+                  <Video size={24} className="icon" />
+                )}
+              </button>
             </div>
 
-            <button
-              className={`control-button ${
-                mediaState.showParticipants ? "active" : ""
-              }`}
-              onClick={() =>
-                setMediaState((prev) => ({
-                  ...prev,
-                  showParticipants: !prev.showParticipants,
-                }))
-              }
-              title="Show Participants"
-            >
-              <Users size={24} />
-              <span className="button-label">Participants</span>
-            </button>
+            <div className="control-button-options">
+              <button className="control-button" title="Open Chat">
+                <MessageSquare className="icon" />
+              </button>
+            </div>
 
-            <button className="control-button" title="More Options">
-              <MoreVertical size={24} />
-              <span className="button-label">More</span>
-            </button>
+            <div className="control-button-options">
+              <button
+                className={`control-button ${
+                  mediaState.showParticipants ? "active" : ""
+                }`}
+                onClick={() =>
+                  setMediaState((prev) => ({
+                    ...prev,
+                    showParticipants: !prev.showParticipants,
+                  }))
+                }
+                title="Show Participants"
+              >
+                <Users size={24} className="icon" />
+              </button>
+            </div>
 
-            <button className="control-button end-call" title="End Call" onClick={leaveRoom}>
-              <PhoneOff size={20} />
-              <span className="button-label">End</span>
-            </button>
+            <div className="control-button-options">
+              <button className="control-button" title="More Options">
+                <MoreVertical className="icon" />
+              </button>
+            </div>
+
+            <div className="control-button-options end-call">
+              <button
+                className="end-call"
+                title="End Call"
+                onClick={leaveRoom}
+              >
+                <PhoneOff className="icon" />
+              </button>
+            </div>
           </div>
 
           <div className="controls-right">

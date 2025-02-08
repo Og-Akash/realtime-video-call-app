@@ -29,7 +29,7 @@ const Conference = () => {
     }
 
     const handlePeerReady = () => {
-      console.log("peer connection established");
+      // console.log("peer connection established");
       setIsLoading(false);
     };
 
