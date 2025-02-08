@@ -183,10 +183,15 @@ const MeetingRoom = ({
           })}
         </div>
 
+        {/* Todo Make the controls  */}
+
         <div className="meeting-controls">
+          {/* Showing the curren time */}
           <div className="controls-left">
             <span className="meeting-time">{currentTime}</span>
           </div>
+
+          {/* showing the Controls */}
 
           {toogleDeviceBox["audio"] ? (
             <SelectDevice
@@ -207,63 +212,52 @@ const MeetingRoom = ({
           ) : null}
 
           <div className="controls-center">
-            <div
-              className="control-button"
-              title={userMediaState.isCurrentUserMuted ? "Unmute" : "Mute"}
-            >
-              <div className="control-button-options">
-                <button
-                  onClick={() => handleToogleDeviceList("audio")}
-                  className="control-button-options-arrow"
-                >
-                  {toogleDeviceBox.audio ? (
-                    <ChevronDown className="icon" />
-                  ) : (
-                    <ChevronUp className="icon" />
-                  )}
-                </button>
-                <button
-                  className={`control-button ${
-                    userMediaState.isCurrentUserMuted ? "active" : ""
-                  }`}
-                  onClick={() => {
-                    toggleAudio(players);
-                    setPlayers((prev) => {
-                      const updatedPlayers = {
-                        ...prev,
-                        [myId]: {
-                          ...prev[myId],
-                          muted: !prev[myId].muted,
-                        },
-                      };
-                      return updatedPlayers;
-                    });
-                  }}
-                >
-                  {userMediaState.isCurrentUserMuted ? (
-                    <MicOff className="icon" />
-                  ) : (
-                    <Mic className="icon" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="control-button-options">
+            <div id="mic" className="control-button">
               <button
-                onClick={() => handleToogleDeviceList("video")}
-                className="control-button-options-arrow"
+                style={{
+                  background: userMediaState.isCurrentUserMuted
+                    ? "rgba(142, 9, 9, 0.838)"
+                    : "",
+                }}
+                onClick={() => {
+                  toggleAudio(players);
+                  setPlayers((prev) => {
+                    const updatedPlayers = {
+                      ...prev,
+                      [myId]: {
+                        ...prev[myId],
+                        muted: !prev[myId].muted,
+                      },
+                    };
+                    return updatedPlayers;
+                  });
+                }}
               >
-                {toogleDeviceBox.video ? (
+                {userMediaState.isCurrentUserMuted ? (
+                  <MicOff className="icon" />
+                ) : (
+                  <Mic className="icon" />
+                )}
+              </button>
+              <button
+                onClick={() => handleToogleDeviceList("audio")}
+                className="arrow"
+              >
+                {toogleDeviceBox.audio ? (
                   <ChevronDown className="icon" />
                 ) : (
                   <ChevronUp className="icon" />
                 )}
               </button>
+            </div>
+
+            <div id="mic" className="control-button">
               <button
-                className={`control-button ${
-                  userMediaState.isCurrentUserVideoOff ? "active" : ""
-                }`}
+                style={{
+                  background: userMediaState.isCurrentUserVideoOff
+                    ? "rgba(142, 9, 9, 0.838)"
+                    : "",
+                }}
                 onClick={() => {
                   toggleVideo(players);
                   setPlayers((prev) => {
@@ -284,19 +278,29 @@ const MeetingRoom = ({
                   <Video size={24} className="icon" />
                 )}
               </button>
+              <button
+                onClick={() => handleToogleDeviceList("video")}
+                className="arrow"
+              >
+                {toogleDeviceBox.video ? (
+                  <ChevronDown className="icon" />
+                ) : (
+                  <ChevronUp className="icon" />
+                )}
+              </button>
             </div>
 
-            <div className="control-button-options">
-              <button className="control-button" title="Open Chat">
+            <div className="control-button">
+              <button title="Open Chat">
                 <MessageSquare className="icon" />
               </button>
             </div>
 
-            <div className="control-button-options">
+            <div className="control-button">
               <button
-                className={`control-button ${
-                  mediaState.showParticipants ? "active" : ""
-                }`}
+                style={{
+                  background: mediaState.showParticipants ? "green" : "",
+                }}
                 onClick={() =>
                   setMediaState((prev) => ({
                     ...prev,
@@ -309,22 +313,20 @@ const MeetingRoom = ({
               </button>
             </div>
 
-            <div className="control-button-options">
-              <button className="control-button" title="More Options">
+            <div className="control-button">
+              <button title="More Options">
                 <MoreVertical className="icon" />
               </button>
             </div>
 
-            <div className="control-button-options end-call">
-              <button
-                className="end-call"
-                title="End Call"
-                onClick={leaveRoom}
-              >
+            <div className="control-button">
+              <button className="end-call" title="End Call" onClick={leaveRoom}>
                 <PhoneOff className="icon" />
               </button>
             </div>
           </div>
+
+          {/* showing the room id */}
 
           <div className="controls-right">
             <span className="meeting-id">Meeting {roomId}</span>
