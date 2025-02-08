@@ -1,18 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Video,
-  VideoOff,
-  Mic,
-  MicOff,
-  PhoneOff,
-  Users,
-  X,
-  MessageSquare,
-  MoreVertical,
-  Pin,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
+import { VideoOff, Mic, MicOff, X, Pin } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer.jsx";
 import "./meeting.css";
 import { useLocation, useParams } from "react-router-dom";
@@ -20,6 +7,9 @@ import { useAvailableDevices } from "@/hooks/useMediaDevices.jsx";
 import { useMediaStream } from "@/hooks/useMediaStream.jsx";
 import { Avatar } from "@/components/avatar/Avatar.jsx";
 import { usePlayers } from "@/hooks/usePlayers.jsx";
+import MeetingControlls from "./meeting-controlls";
+
+export const meetingContext = createContext(null);
 
 const MeetingRoom = ({
   calls,
@@ -29,8 +19,9 @@ const MeetingRoom = ({
   nonHighlightedPlayers,
   setPlayers,
 }) => {
-  const [mediaState, setMediaState] = useState({
-    showParticipants: false,
+  const [sidebar, setSidebar] = useState({
+    open: false,
+    action: "",
   });
   const { videoDevices, audioDevices } = useAvailableDevices();
   const [selectedDeviceId, setSelectedDeviceId] = useState(
@@ -80,6 +71,7 @@ const MeetingRoom = ({
     return () => clearInterval(intervalId);
   }, []);
 
+  // ? filtering the current players who have a peerid
   useEffect(() => {
     if (highlightedPlayer == null) return;
     const filteredPlayers = Object.keys(highlightedPlayer)
@@ -91,6 +83,7 @@ const MeetingRoom = ({
     setCurrentPlayers(filteredPlayers);
   }, [highlightedPlayer]);
 
+  // ? update the stream data when user change his camera device
   useEffect(() => {
     if (!stream || !calls) return;
 
@@ -123,254 +116,168 @@ const MeetingRoom = ({
 
   return (
     <div className="meeting-container">
-      <div className={`meeting-content`}>
-        <div
-          className={`video-grid ${
-            mediaState.showParticipants ? "with-sidebar" : ""
-          }`}
-        >
-          {nonHighlightedPlayers && (
-            <div className="nonhighlighted-video-player-container">
-              {userMediaState.isCurrentUserVideoOff ? (
-                <div className="video-placeholder">
-                  <Avatar name={"Yash"} className="small" />
+      <meetingContext.Provider
+        value={{
+          myId,
+          userMediaState,
+          toggleAudio,
+          toggleVideo,
+          handleToogleDeviceList,
+          toogleDeviceBox,
+          setPlayers,
+          leaveRoom,
+          sidebar,
+          setSidebar,
+        }}
+      >
+        <div className={`meeting-content`}>
+          <div className={`video-grid ${sidebar.open ? "with-sidebar" : ""}`}>
+            {nonHighlightedPlayers && (
+              <div className="nonhighlighted-video-player-container">
+                {userMediaState.isCurrentUserVideoOff ? (
+                  <div className="video-placeholder">
+                    <Avatar name={"Yash"} className="small" />
+                  </div>
+                ) : (
+                  <VideoPlayer
+                    stream={nonHighlightedPlayers.stream}
+                    muted={nonHighlightedPlayers.muted}
+                    playing={
+                      !userMediaState.isCurrentUserVideoOff &&
+                      nonHighlightedPlayers.playing
+                    }
+                    classNames="nonhighlighted-video-player"
+                  />
+                )}
+                <span className="currrentUser-name">John Doe</span>
+                {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
+              </div>
+            )}
+            {currentPlayers?.map((player, index) => {
+              const { stream, muted, playing } = player;
+              return (
+                <div key={index} className="main-video-container">
+                  {playing ? (
+                    <VideoPlayer
+                      stream={stream}
+                      playerId={index}
+                      muted={muted}
+                      playing={!userMediaState.isCurrentUserVideoOff && playing}
+                      classNames="video-player"
+                    />
+                  ) : (
+                    <div className="video-placeholder">
+                      <Avatar name={"Yash"} className="big" />
+                    </div>
+                  )}
+                  <div className="video-info">
+                    <span className="participant-name">Akash Ghosh (You)</span>
+                    {muted ? (
+                      <MicOff className="status-icon" size={16} />
+                    ) : (
+                      <Mic className="status-icon" size={16} />
+                    )}
+                  </div>
+                  <button className="pin-button">
+                    <Pin size={16} />
+                  </button>
                 </div>
-              ) : (
-                <VideoPlayer
-                  stream={nonHighlightedPlayers.stream}
-                  muted={nonHighlightedPlayers.muted}
-                  playing={
-                    !userMediaState.isCurrentUserVideoOff &&
-                    nonHighlightedPlayers.playing
-                  }
-                  classNames="nonhighlighted-video-player"
-                />
-              )}
-              <span className="currrentUser-name">John Doe</span>
-              {userMediaState.isCurrentUserMuted ? <MicOff /> : <Mic />}
+              );
+            })}
+          </div>
+
+          {/* Todo Make the controls  */}
+
+          <div className="meeting-controls">
+            {/* Showing the curren time */}
+            <div className="controls-left">
+              <span className="meeting-time">{currentTime}</span>
+            </div>
+
+            {/* showing the Controls */}
+
+            {toogleDeviceBox["audio"] ? (
+              <SelectDevice
+                devices={audioDevices}
+                setSelectedDeviceId={setSelectedDeviceId}
+                onChangeDevice={updateStream}
+                setToogleDeviceBox={setToogleDeviceBox}
+              />
+            ) : toogleDeviceBox["video"] ? (
+              <SelectDevice
+                devices={videoDevices}
+                setSelectedDeviceId={setSelectedDeviceId}
+                onChangeDevice={updateStream}
+                setToogleDeviceBox={setToogleDeviceBox}
+              />
+            ) : null}
+
+            <MeetingControlls />
+
+            {/* showing the room id */}
+
+            <div className="controls-right">
+              <span className="meeting-id">Meeting {roomId}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className={`sidebar ${sidebar.open ? "show" : ""}`}>
+          <div className="sidebar-header">
+            <h2>
+              {sidebar.action === "users"
+                ? "Participants (3)"
+                : sidebar.action === "chat"
+                ? "Chat Messages"
+                : ""}
+            </h2>
+            <button
+              className="close-sidebar"
+              onClick={() =>
+                setSidebar((prev) => ({ ...prev, open: false, action: "" }))
+              }
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="sidebar-content">
+            {sidebar.action === "users" ? (
+              <div className="participants-list">
+                {participants.map((participant) => (
+                  <div key={participant.id} className="participant-item">
+                    <div className="participant-info">
+                      <span className="participant-name">
+                        {participant.name}
+                      </span>
+                      <div className="participant-status">
+                        {participant.isMuted && (
+                          <MicOff size={14} className="status-icon" />
+                        )}
+                        {participant.isVideoOff && (
+                          <VideoOff size={14} className="status-icon" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="chat-messages">
+                <span>very nice site.</span>
+                <br />
+                <br />
+                <span>good job buddy.</span>
+              </div>
+            )}
+          </div>
+          {sidebar.action === "chat" && (
+            <div className="chat-input">
+              <input type="text" placeholder="Type a message..." />
+              <button>Send</button>
             </div>
           )}
-          {currentPlayers?.map((player, index) => {
-            const { stream, muted, playing } = player;
-            return (
-              <div key={index} className="main-video-container">
-                {playing ? (
-                  <VideoPlayer
-                    stream={stream}
-                    playerId={index}
-                    muted={muted}
-                    playing={!userMediaState.isCurrentUserVideoOff && playing}
-                    classNames="video-player"
-                  />
-                ) : (
-                  <div className="video-placeholder">
-                    <Avatar name={"Yash"} className="big" />
-                  </div>
-                )}
-                <div className="video-info">
-                  <span className="participant-name">Akash Ghosh (You)</span>
-                  {muted ? (
-                    <MicOff className="status-icon" size={16} />
-                  ) : (
-                    <Mic className="status-icon" size={16} />
-                  )}
-                </div>
-                <button className="pin-button">
-                  <Pin size={16} />
-                </button>
-              </div>
-            );
-          })}
         </div>
-
-        {/* Todo Make the controls  */}
-
-        <div className="meeting-controls">
-          {/* Showing the curren time */}
-          <div className="controls-left">
-            <span className="meeting-time">{currentTime}</span>
-          </div>
-
-          {/* showing the Controls */}
-
-          {toogleDeviceBox["audio"] ? (
-            <SelectDevice
-              devices={audioDevices}
-              selectedDeviceId={selectedDeviceId}
-              setSelectedDeviceId={setSelectedDeviceId}
-              onChangeDevice={updateStream}
-              setToogleDeviceBox={setToogleDeviceBox}
-            />
-          ) : toogleDeviceBox["video"] ? (
-            <SelectDevice
-              devices={videoDevices}
-              selectedDeviceId={selectedDeviceId}
-              setSelectedDeviceId={setSelectedDeviceId}
-              onChangeDevice={updateStream}
-              setToogleDeviceBox={setToogleDeviceBox}
-            />
-          ) : null}
-
-          <div className="controls-center">
-            <div id="mic" className="control-button">
-              <button
-                style={{
-                  background: userMediaState.isCurrentUserMuted
-                    ? "rgba(142, 9, 9, 0.838)"
-                    : "",
-                }}
-                onClick={() => {
-                  toggleAudio(players);
-                  setPlayers((prev) => {
-                    const updatedPlayers = {
-                      ...prev,
-                      [myId]: {
-                        ...prev[myId],
-                        muted: !prev[myId].muted,
-                      },
-                    };
-                    return updatedPlayers;
-                  });
-                }}
-              >
-                {userMediaState.isCurrentUserMuted ? (
-                  <MicOff className="icon" />
-                ) : (
-                  <Mic className="icon" />
-                )}
-              </button>
-              <button
-                onClick={() => handleToogleDeviceList("audio")}
-                className="arrow"
-              >
-                {toogleDeviceBox.audio ? (
-                  <ChevronDown className="icon" />
-                ) : (
-                  <ChevronUp className="icon" />
-                )}
-              </button>
-            </div>
-
-            <div id="mic" className="control-button">
-              <button
-                style={{
-                  background: userMediaState.isCurrentUserVideoOff
-                    ? "rgba(142, 9, 9, 0.838)"
-                    : "",
-                }}
-                onClick={() => {
-                  toggleVideo(players);
-                  setPlayers((prev) => {
-                    const updatedPlayers = {
-                      ...prev,
-                      [myId]: {
-                        ...prev[myId],
-                        playing: !prev[myId].playing,
-                      },
-                    };
-                    return updatedPlayers;
-                  });
-                }}
-              >
-                {userMediaState.isCurrentUserVideoOff ? (
-                  <VideoOff size={24} className="icon" />
-                ) : (
-                  <Video size={24} className="icon" />
-                )}
-              </button>
-              <button
-                onClick={() => handleToogleDeviceList("video")}
-                className="arrow"
-              >
-                {toogleDeviceBox.video ? (
-                  <ChevronDown className="icon" />
-                ) : (
-                  <ChevronUp className="icon" />
-                )}
-              </button>
-            </div>
-
-            <div className="control-button">
-              <button title="Open Chat">
-                <MessageSquare className="icon" />
-              </button>
-            </div>
-
-            <div className="control-button">
-              <button
-                style={{
-                  background: mediaState.showParticipants ? "green" : "",
-                }}
-                onClick={() =>
-                  setMediaState((prev) => ({
-                    ...prev,
-                    showParticipants: !prev.showParticipants,
-                  }))
-                }
-                title="Show Participants"
-              >
-                <Users size={24} className="icon" />
-              </button>
-            </div>
-
-            <div className="control-button">
-              <button title="More Options">
-                <MoreVertical className="icon" />
-              </button>
-            </div>
-
-            <div className="control-button">
-              <button className="end-call" title="End Call" onClick={leaveRoom}>
-                <PhoneOff className="icon" />
-              </button>
-            </div>
-          </div>
-
-          {/* showing the room id */}
-
-          <div className="controls-right">
-            <span className="meeting-id">Meeting {roomId}</span>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={`participants-sidebar ${
-          mediaState.showParticipants ? "show" : ""
-        }`}
-      >
-        <div className="sidebar-header">
-          <h2>Participants (3)</h2>
-          <button
-            className="close-sidebar"
-            onClick={() =>
-              setMediaState((prev) => ({
-                ...prev,
-                showParticipants: false,
-              }))
-            }
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <div className="participants-list">
-          {participants.map((participant) => (
-            <div key={participant.id} className="participant-item">
-              <div className="participant-info">
-                <span className="participant-name">{participant.name}</span>
-                <div className="participant-status">
-                  {participant.isMuted && (
-                    <MicOff size={14} className="status-icon" />
-                  )}
-                  {participant.isVideoOff && (
-                    <VideoOff size={14} className="status-icon" />
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </meetingContext.Provider>
     </div>
   );
 };
@@ -378,38 +285,38 @@ const MeetingRoom = ({
 const SelectDevice = ({
   setToogleDeviceBox,
   devices,
-  selectedDeviceId,
   setSelectedDeviceId,
   onChangeDevice,
 }) => {
   return (
     <div
+      className="choose-device-container"
       style={{
         position: "absolute",
-        bottom: 80,
+        bottom: 15,
         left: "50%",
         transform: "translate(-50%, -50%)",
       }}
     >
-      <select
-        className="select-devices"
-        onChange={(e) => {
-          const deviceId = e.target.value;
-          setSelectedDeviceId(deviceId);
-          onChangeDevice(deviceId);
-          setToogleDeviceBox({
-            audio: false,
-            video: false,
-          });
-        }}
-        value={selectedDeviceId || ""}
-      >
+      <div className="choose-device-box">
         {devices?.map((device) => (
-          <option key={device.deviceId} value={device.deviceId}>
+          <button
+            className="choose-device-btn"
+            onClick={(e) => {
+              setSelectedDeviceId(device.deviceId);
+              onChangeDevice(device.deviceId);
+              setToogleDeviceBox({
+                audio: false,
+                video: false,
+              });
+            }}
+            key={device.deviceId}
+            value={device.deviceId}
+          >
             {device.label || `Camera ${device.deviceId}`}
-          </option>
+          </button>
         ))}
-      </select>
+      </div>
     </div>
   );
 };
