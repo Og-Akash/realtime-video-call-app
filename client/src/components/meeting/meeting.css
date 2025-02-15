@@ -37,7 +37,7 @@
 .main-video-container {
     width: 100%;
     height: 100%;
-    background-color: var(--surface);
+    background-color: var(--surface-dark);
     border-radius: 1rem;
     position: relative;
     /*overflow: hidden;*/
@@ -58,7 +58,7 @@
     right: 0.8rem;
     width: 20rem;
     height: 15rem;
-    background: var(--surface);
+    background: var(--surface-dark);
     border-radius: 1rem;
     border: 4px solid var(--primary);
     padding: 0.5rem;
@@ -93,7 +93,7 @@
     align-items: center;
     justify-content: center;
     border: 2px solid blue;
-    background-color: var(--surface);
+    background-color: var(--surface-dark);
 }
 
 .video-icon {
@@ -142,7 +142,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 2rem;
-    background-color: var(--surface);
+    background-color: var(--surface-dark);
     border-top: 1px solid var(--border);
     height: 5rem;
     box-shadow: 2px 0px 8px rgba(117, 117, 117, 0.5);
@@ -152,30 +152,30 @@
     flex: 1;
 }
 
-.choose-device-container{
+.choose-device-container {
     width: fit-content;
     background: #333;
     box-shadow: 3px 0px 2px rgba(94, 94, 94, 0.5);
     border-radius: 1rem;
 }
 
-.choose-device-box{
+.choose-device-box {
     display: flex;
     flex-direction: column;
     padding: 0.5rem;
 }
 
-.choose-device-box .choose-device-btn{
+.choose-device-box .choose-device-btn {
     cursor: pointer;
     height: 2rem;
     background: #333;
-    border:none;
+    border: none;
     outline: none;
-    color:white;
+    color: white;
     border-radius: 0.5rem;
 }
 
-.choose-device-box .choose-device-btn:hover{
+.choose-device-box .choose-device-btn:hover {
     background: #555;
 }
 
@@ -218,7 +218,7 @@
 }
 
 .control-button button:hover {
-    scale:1.1;
+    scale: 1.1;
     background: rgba(117, 117, 117, 0.227);
 }
 
@@ -226,11 +226,12 @@
     background: none;
     padding: 0;
 
-    &:hover{
+    &:hover {
         background: rgba(117, 117, 117, 0.227);
     }
 
 }
+
 .control-button .end-call {
     background: rgb(190, 3, 38);
 
@@ -279,9 +280,8 @@
     right: -300px;
     width: 300px;
     height: calc(100% - 5rem);
-    background-color: var(--surface);
+    background-color: var(--surface-dark);
     border-left: 1px solid var(--background);
-    padding: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -302,8 +302,8 @@
     border-bottom: 1px solid var(--border);
 }
 
-.sidebar-content{
-    flex:1;
+.sidebar-content {
+    flex: 1;
 }
 
 .sidebar-header h2 {
@@ -324,7 +324,7 @@
 }
 
 .close-sidebar:hover {
-    background-color: var(--surface-hover);
+    background-color: var(--surface-dark-hover);
     color: var(--text);
 }
 
@@ -341,7 +341,7 @@
 }
 
 .participant-item:hover {
-    background-color: var(--surface-hover);
+    background-color: var(--surface-dark-hover);
 }
 
 .participant-info {
@@ -354,6 +354,98 @@
     display: flex;
     gap: 0.5rem;
     color: var(--text-secondary);
+}
+
+
+/* Chat message styles  */
+
+/* Messages box */
+
+.chat-message {
+    background-color: var(--surface);
+    /* Light gray background */
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 95%;
+    margin: 10px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.user-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #d1d5db;
+    /* Gray background */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sender-name {
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.message-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+
+.message-content {
+    font-size: 14px;
+    color: var(--text-secondary);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+
+/* Chat message input box */
+
+.chat-input-box {
+    width: 100%;
+    height: 2.5rem;
+    display: flex;
+    padding: 0.2rem;
+    gap:1rem;
+    justify-content: space-around;
+    margin-bottom: 1rem;
+}
+
+.chat-input-box .message-input {
+    border: none;
+    outline: none;
+    padding: 0.2rem 0.5rem;
+    flex:1;
+    border-radius: 0.2rem;
+}
+
+.send-btn {
+    border: none;
+    background: var(--primary);
+    color: var(--text);
+    display: inline-flex;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+    align-items: center;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.send-btn:hover {
+    background: var(--primary-hover);
 }
 
 /* Responsive Design */

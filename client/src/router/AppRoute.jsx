@@ -1,41 +1,45 @@
-import Conference from "../pages/Conference";
-import CreateRoom from "../pages/CreateRoom";
-import {Login} from "@/components/authentication/Login.jsx";
-import Home from "@/pages/Home";
+import { lazy, Suspense } from "react";
 
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "@/components/Layout.jsx";
-
+import Loader from "../components/Loader";
+const Conference = lazy(() => import("../pages/Conference"));
+const CreateRoom = lazy(() => import("../pages/CreateRoom"));
+const Login = lazy(() => import("@/components/authentication/Login.jsx"));
+const Home = lazy(() => import("@/pages/Home"));
 
 const Router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Layout/>,
-        children: [
-            {
-                index: true,
-                element: <Home/>,
-            }, {
-                path: "/create-room",
-                element: <CreateRoom/>,
-            },
-        ]
-    },
-    {
-        path: "/meeting/:roomId",
-        element: <Conference/>,
-    },
+  {
+    path: "/",
+    element: (
+      <Suspense fallback={<Loader>Loading...</Loader>}>
+        <Layout />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "/create-room",
+        element: <CreateRoom />,
+      },
+    ],
+  },
+  {
+    path: "/meeting/:roomId",
+    element: <Conference />,
+  },
 
-    {
-        path: "/login",
-        element: <Login/>,
-    },
+  {
+    path: "/login",
+    element: <Login />,
+  },
 ]);
 
 const AppRouter = () => {
-    return (
-        <RouterProvider router={Router}/>
-    );
+  return <RouterProvider router={Router} />;
 };
 
 export default AppRouter;

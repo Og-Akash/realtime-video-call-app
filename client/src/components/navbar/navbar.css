@@ -1,52 +1,84 @@
-.navbar-container{
-    display: flex;
-    height: 5rem;
-    justify-content: space-between;
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     padding: 1rem 4rem;
+}
 
-    h1{
+.navbar-container {
+    max-width: 100rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: auto;
+
+    img {
         cursor: pointer;
     }
 }
-.profile-container{
+.logo-box{
+    display: flex;
+    gap:1rem;
+    align-items: center;
+
+    .logo{
+      padding: 0.6rem;
+      border-radius: 0.5rem;
+      background: rgba(84, 5, 127, 0.414);
+
+      .logo-icon{
+        color: var(--light-primary);
+      }
+    }
+}
+
+.profile-container {
     display: flex;
     gap: 1rem;
     align-items: center;
 }
 
-.profile-container img{
+.profile-container img {
     width: 3.5rem;
     border-radius: 50%;
     cursor: pointer;
 }
-.logout-btn{
-    border:2px solid red;
-    background-color: transparent;
-    color: white;
-    font-size: 1.2rem;
+
+.user-details{
+    display: inline-flex;
+    gap: 0.6rem;
+    align-items: center;
+
+    svg{
+        color:var(--light-primary);
+    }
+}
+.auth-btn{
+    border: none;
+    font-size: 1.1rem;
     cursor: pointer;
-    padding: 0.5rem 1.2rem;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.6rem;
     border-radius: 0.4rem;
     transition: 0.3s ease;
 }
 
-.logout-btn:hover{
-    background-color: red;
-    color: white;
+.logout-btn {
+    background-color: rgb(156, 9, 41, 0.1);
+    color: var(--red);
 }
 
 .login-btn{
-    border:2px solid white;
-    background-color: transparent;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.5rem 1.2rem;
-    border-radius: 0.4rem;
-    transition: 0.3s ease;
+    padding: 0.6rem 1rem;
+    background-color: rgba(253, 250, 251, 0.1);
+    color: rgb(255, 255, 255); 
 }
 
-.login-btn:hover{
-    background-color: white;
-    color: black;
+.logout-btn:hover {
+    color: var(--red-hover)
+}
+.login-btn:hover {
+    color: rgb(209, 204, 205)
 }

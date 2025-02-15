@@ -3,7 +3,7 @@ import "./login.css"
 import {useFirebase} from "@/context/Firebase.jsx";
 import {useNavigate} from "react-router-dom";
 
-export function Login(){
+export default function Login(){
     const navigate = useNavigate()
     const firebase = useFirebase()
 

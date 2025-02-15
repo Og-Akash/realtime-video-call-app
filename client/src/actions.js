@@ -7,4 +7,6 @@ export const ACTIONS = {
     USER_TOOGLE_AUDIO: 'user-toogle-audio',
     USER_TOOGLE_VIDEO: 'user-toogle-video',
     USER_LEAVE: 'user-leave-room',
+    SEND_MESSAGE: 'send-message',
+    RECEIVE_MESSAGE:'receive-message',
 }

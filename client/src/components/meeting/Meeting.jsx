@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from "react";
-import { VideoOff, Mic, MicOff, X, Pin } from "lucide-react";
+import { VideoOff, Mic, MicOff, X, Pin, Send, User, User2 } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer.jsx";
 import "./meeting.css";
 import { useLocation, useParams } from "react-router-dom";
@@ -8,6 +8,8 @@ import { useMediaStream } from "@/hooks/useMediaStream.jsx";
 import { Avatar } from "@/components/avatar/Avatar.jsx";
 import { usePlayers } from "@/hooks/usePlayers.jsx";
 import MeetingControlls from "./meeting-controlls";
+import { useSocket } from "../../context/Socket";
+import { ACTIONS } from "../../actions";
 
 export const meetingContext = createContext(null);
 
@@ -18,6 +20,7 @@ const MeetingRoom = ({
   highlightedPlayer,
   nonHighlightedPlayers,
   setPlayers,
+  connectedUsers,
 }) => {
   const [sidebar, setSidebar] = useState({
     open: false,
@@ -27,16 +30,19 @@ const MeetingRoom = ({
   const [selectedDeviceId, setSelectedDeviceId] = useState(
     videoDevices[0]?.deviceId
   );
+  const { socket } = useSocket();
   const { stream, updateStream } = useMediaStream(selectedDeviceId);
   const [currentTime, setCurrentTime] = useState("");
   const { toggleAudio, toggleVideo, leaveRoom } = usePlayers(myId);
   const [currentPlayers, setCurrentPlayers] = useState(null);
-  const location = useLocation();
   const { roomId } = useParams();
   const [toogleDeviceBox, setToogleDeviceBox] = useState({
     audio: false,
     video: false,
   });
+  const [message, setMessage] = useState("");
+  const [allMessages, setAllMessage] = useState([]);
+  const { state } = useLocation();
 
   // Memoize user media states
   const userMediaState = useMemo(() => {
@@ -114,6 +120,35 @@ const MeetingRoom = ({
     }));
   };
 
+  const handleMessageSubmit = (e) => {
+    e.preventDefault();
+    if (!message) return;
+
+    const messageData = {
+      roomId,
+      message,
+      username: state.user,
+    };
+    console.log(messageData);
+    socket.emit(ACTIONS.SEND_MESSAGE, messageData);
+    setMessage("");
+  };
+
+  //? checking users message socket event
+  useEffect(() => {
+    socket.on(ACTIONS.RECEIVE_MESSAGE, (msgData) => {
+      setAllMessage((prev) => [...prev, msgData]);
+    });
+
+    socket.on("user_list", (updatedUsers) => {
+      setUsers(updatedUsers);
+    });
+
+    return () => {
+      socket.off(ACTIONS.RECEIVE_MESSAGE);
+    };
+  }, [socket, setAllMessage]);
+
   return (
     <div className="meeting-container">
       <meetingContext.Provider
@@ -128,6 +163,7 @@ const MeetingRoom = ({
           leaveRoom,
           sidebar,
           setSidebar,
+          currentPlayers,
         }}
       >
         <div className={`meeting-content`}>
@@ -171,7 +207,9 @@ const MeetingRoom = ({
                     </div>
                   )}
                   <div className="video-info">
-                    <span className="participant-name">Akash Ghosh (You)</span>
+                    <span className="participant-name">
+                      {currentPlayers[0].user}
+                    </span>
                     {muted ? (
                       <MicOff className="status-icon" size={16} />
                     ) : (
@@ -226,7 +264,7 @@ const MeetingRoom = ({
           <div className="sidebar-header">
             <h2>
               {sidebar.action === "users"
-                ? "Participants (3)"
+                ? "Participants " + (connectedUsers.length) 
                 : sidebar.action === "chat"
                 ? "Chat Messages"
                 : ""}
@@ -243,38 +281,73 @@ const MeetingRoom = ({
           <div className="sidebar-content">
             {sidebar.action === "users" ? (
               <div className="participants-list">
-                {participants.map((participant) => (
-                  <div key={participant.id} className="participant-item">
-                    <div className="participant-info">
-                      <span className="participant-name">
-                        {participant.name}
-                      </span>
-                      <div className="participant-status">
-                        {participant.isMuted && (
+                <div className="participant-item">
+                  <div className="participant-info">
+                    <span className="participant-name">{state.user} (You)</span>
+                     <div className="participant-status">
+                        {userMediaState.isCurrentUserMuted && (
                           <MicOff size={14} className="status-icon" />
                         )}
-                        {participant.isVideoOff && (
+                        {userMediaState.isCurrentUserVideoOff && (
                           <VideoOff size={14} className="status-icon" />
                         )}
                       </div>
+                  </div>
+                </div>
+                {connectedUsers?.filter(user => user.username !== state.user).map((users) => (
+                  <div key={users.socketId} className="participant-item">
+                    <div className="participant-info">
+                      <span className="participant-name">{users.username}</span>
+
+                      {/* //* Future TODO add the funtionality to show the user mic and video status *\\ */}
+
+                      {/* <div className="participant-status">
+                        {players[peerId].isMuted && (
+                          <MicOff size={14} className="status-icon" />
+                        )}
+                        {players[peerId].isVideoOff && (
+                          <VideoOff size={14} className="status-icon" />
+                        )}
+                      </div> */}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="chat-messages">
-                <span>very nice site.</span>
-                <br />
-                <br />
-                <span>good job buddy.</span>
-              </div>
+              <>
+                {allMessages.map((message) => (
+                  <div key={message.sender} className="chat-message">
+                    <div className="chat-header">
+                      <span className="user-icon">
+                        <User2 size={20} />
+                      </span>
+                      <span className="sender-name">
+                        {message.sender === state.user
+                          ? `${message.sender.slice(0, 10)} (You)`
+                          : message.sender.slice(0, 10) + "..."}
+                      </span>
+                      <span className="message-time">{message.time}</span>
+                    </div>
+                    <div className="message-content">{message.message}</div>
+                  </div>
+                ))}
+              </>
             )}
           </div>
           {sidebar.action === "chat" && (
-            <div className="chat-input">
-              <input type="text" placeholder="Type a message..." />
-              <button>Send</button>
-            </div>
+            <form className="chat-input-box" onSubmit={handleMessageSubmit}>
+              <input
+                className="message-input"
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                name="message"
+                placeholder="Type a message..."
+              />
+              <button className="send-btn">
+                <Send />
+              </button>
+            </form>
           )}
         </div>
       </meetingContext.Provider>

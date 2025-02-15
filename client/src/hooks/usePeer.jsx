@@ -10,7 +10,7 @@ export function usePeer() {
     const { socket } = useSocket();
     const { roomId } = useParams();
     const location = useLocation();
-    const { email } = location.state || {};
+    const { user } = location.state || {};
 
     useEffect(() => {
         if (peerRef.current) return; // Prevent multiple PeerJS instances
@@ -36,7 +36,7 @@ export function usePeer() {
                 socket.emit(ACTIONS.JOIN, {
                     roomId,
                     peerId: id,
-                    email,
+                    user,
                 });
             }
         });
@@ -52,7 +52,7 @@ export function usePeer() {
                 peerRef.current = null;
             }
         };
-    }, [socket, roomId, email]); // Minimal dependencies to avoid unnecessary reinitialization
+    }, [socket, roomId, user]); // Minimal dependencies to avoid unnecessary reinitialization
 
     return {
         peer: peerRef.current,

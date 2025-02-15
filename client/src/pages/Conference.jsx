@@ -7,7 +7,7 @@ import { useMediaStream } from "@/hooks/useMediaStream.jsx";
 import { useAvailableDevices } from "@/hooks/useMediaDevices.jsx";
 import MeetingRoom from "@/components/meeting/Meeting.jsx";
 import { cloneDeep } from "lodash";
-import { LoaderCircle } from "lucide-react";
+import Loader from "../components/Loader";
 
 const Conference = () => {
   const { socket } = useSocket();
@@ -16,12 +16,10 @@ const Conference = () => {
     usePlayers(myId, peer);
   const [calls, setCalls] = useState({}); // Track ongoing calls
   const { videoDevices } = useAvailableDevices();
-  const [selectedDeviceId, setSelectedDeviceId] = useState(
-    videoDevices[0]?.deviceId
-  );
+  const [selectedDeviceId] = useState(videoDevices[0]?.deviceId);
   const { stream, updateStream } = useMediaStream(selectedDeviceId); // Modified hook to support stream updates
   const [isLoading, setIsLoading] = useState(true);
-
+  const [connectedUsers, setConnectedUsers] = useState([]);
   //? show the loader if until the peer connection is established
   useEffect(() => {
     if (!peer) {
@@ -44,14 +42,14 @@ const Conference = () => {
   useEffect(() => {
     if (!socket || !peer) return;
 
-    const handleNewUserJoin = ({ peerId }) => {
+    const handleNewUserJoin = ({ user, peerId, connectedUsers }) => {
       if (peerId === myId) return; // Skip self
+      console.log("New user joined:", { user, connectedUsers });
 
-      // Initiate a single call to the new user if not already connected
+      setConnectedUsers(() => [...connectedUsers]);
+      // Call the new user
       if (!calls[peerId]) {
-        console.log("stream", stream);
         const callInstance = peer.call(peerId, stream);
-        console.log(callInstance);
         setCalls((prev) => ({ ...prev, [peerId]: callInstance }));
 
         callInstance.on("stream", (remoteStream) => {
@@ -66,7 +64,7 @@ const Conference = () => {
         });
 
         callInstance.on("close", () => {
-          console.log(`Call with ${peerId} closed`);
+          // console.log(`Call with ${peerId} closed`);
           setCalls((prev) => {
             const updatedCalls = { ...prev };
             delete updatedCalls[peerId];
@@ -80,18 +78,18 @@ const Conference = () => {
           });
         });
 
-        callInstance.on("error", (err) => {
-          console.error("Call error:", err);
-        });
+        callInstance.on("error", (err) => console.error("Call error:", err));
       }
     };
 
+    // socket.on(ACTIONS.JOINED, handleRoomUsers);
     socket.on(ACTIONS.USER_JOINED, handleNewUserJoin);
 
     return () => {
+      // socket.off(ACTIONS.ROOM_USERS, handleRoomUsers);
       socket.off(ACTIONS.USER_JOINED, handleNewUserJoin);
     };
-  }, [peer, stream, socket, myId, players, calls, setPlayers]);
+  }, [peer, stream, socket, myId, calls]);
 
   //? Handle incoming calls
   useEffect(() => {
@@ -99,6 +97,7 @@ const Conference = () => {
 
     peer.on("call", (call) => {
       const { peer: callerId } = call;
+      // console.log("call instace", call);
 
       call.answer(stream);
 
@@ -116,7 +115,7 @@ const Conference = () => {
       });
 
       call.on("close", () => {
-        console.log(`Call with ${callerId} closed`);
+        // console.log(`Call with ${callerId} closed`);
         setCalls((prev) => {
           const updatedCalls = { ...prev };
           delete updatedCalls[callerId];
@@ -159,7 +158,7 @@ const Conference = () => {
     if (!socket) return;
 
     function toggleMic(userId) {
-      console.log(`User toggled their mic: ${userId}`);
+      // console.log(`User toggled their mic: ${userId}`);
       setPlayers((prev) => {
         const copy = cloneDeep(prev);
         copy[userId].muted = !copy[userId].muted;
@@ -168,7 +167,7 @@ const Conference = () => {
     }
 
     function toggleVideo(userId) {
-      console.log(`User toggled their video: ${userId}`);
+      // console.log(`User toggled their video: ${userId}`);
       setPlayers((prev) => {
         const copy = cloneDeep(prev);
         copy[userId].playing = !copy[userId].playing;
@@ -176,12 +175,15 @@ const Conference = () => {
       });
     }
 
-    function toggleLeave(userId) {
-      console.log(`user with id ${userId} leave the room.`);
-      alert(`user with id ${userId} leave the room`);
+    function toggleLeave({ email, connectedUsers, userId }) {
+      // console.log(`${email} leave the room.`);
+      // console.log("fresh users", connectedUsers);
+
+      alert(`user with id ${email} leave the room`);
       const updatedPlayer = cloneDeep(players);
       delete updatedPlayer[userId];
       setPlayers(updatedPlayer);
+      setConnectedUsers([...connectedUsers]);
     }
 
     socket.on(ACTIONS.USER_TOOGLE_AUDIO, toggleMic);
@@ -195,18 +197,18 @@ const Conference = () => {
     };
   }, [socket, setPlayers]);
 
+  useEffect(() => {
+    console.log(connectedUsers);
+  }, [connectedUsers]);
+
   if (isLoading) {
-    return (
-      <div className="loader-container">
-        <LoaderCircle className="loader" color="#7C3AED" />
-        <p>Joining The Room...</p>
-      </div>
-    );
+    return <Loader>Joining The Room...</Loader>;
   }
 
   return (
     <div>
       <MeetingRoom
+        connectedUsers={connectedUsers}
         calls={calls}
         myId={myId}
         players={players}

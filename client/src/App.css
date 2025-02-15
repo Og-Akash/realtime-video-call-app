@@ -1,154 +1,139 @@
-.home_section {
-  height: 100vh;
+.home_container {
+  width: 99vw;
+  overflow: hidden;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  gap: 2rem;
+  flex-direction: row;
+  width: 100%;
+}
+
+.left {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  width: 70%;
 }
 
-.home_section h1 {
-  background: linear-gradient(90deg, rgb(#b5c6e0, #ebf4f5));
-  background: transparent;
+.left .title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, #7C3AED, #3B82F6);
+  -webkit-background-clip: text;
   background-clip: text;
-  font-size: 4em;
+  text-align: left;
+  color: transparent;
+  line-height: 1.2;
 }
 
-.action_wrapper {
-  margin-top: 2rem;
+.left .subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.buttons {
   display: flex;
-  justify-content: center;
-  width: 30em;
-  gap: 2rem;
+  justify-content: start;
 }
 
-.action_wrapper button {
-  padding: 1rem 2rem;
-  cursor: pointer;
-  border-radius: 10px;
+.button-secondary {
+  background-color: transparent;
   color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: none;
-  transition: 0.3s all ease;
+  border: 1px solid #374151;
 }
 
-.action_wrapper button:nth-child(1) {
+
+.buttons button:nth-child(1) {
   background: #6F00FF;
 }
 
-.action_wrapper button:nth-child(1):hover {
+.buttons button:nth-child(1):hover {
   background: #4f02b4;
 }
 
-.action_wrapper button:nth-child(2) {
-  color: black;
+.buttons button:nth-child(2):hover {
+  color: #b9b8b8;
 }
 
-.action_wrapper button:nth-child(2):hover {
-  background: #b9b8b8;
+.right img {
+  border-radius: 1rem;
+  animation: float 3s ease infinite;
 }
+
+@keyframes float {
+  0%{
+    transform: translateY(0);
+  }
+  50%{
+    transform: translateY(-1rem);
+  }
+  100%{
+    transform: translateY(0);
+  }
+}
+
+/* =============================
+Features section
+ =============================== */
+
+
+.features_section {
+  max-width: 80rem;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  height: 16rem;
+  margin: auto;
+  margin-bottom: 5rem;
+  padding: 2rem;
+
+  .feature {
+    border-radius: 1rem;
+    box-shadow:0px 4px 20px 3px rgba(250, 250, 250, 0.1);
+    padding: 0.8rem;
+    flex: 1;
+
+    .icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 1rem;
+      display: grid;
+      place-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .heading {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .subhead {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+  }
+
+}
+
 
 /* =============================
 create Room page
  =============================== */
 
 .create_room_container {
-  height: calc(100vh - 5rem);
+  height: calc(100vh - 6rem);
   display: flex;
-  flex-direction: column;
+  gap: 2rem;
   justify-content: center;
   align-items: center;
-}
-
-
-/* Container styling */
-.form-container {
-  max-width: 30rem;
-  width: 100%;
-  padding: 20px;
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-/* Form styling */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--text);
-}
-.form-group{
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-/* Label styling */
-.form-group label {
-  font-size: 1.1rem;
-  color: var(--text);
-  margin-bottom: 5px;
-}
-
-/* Input styling */
-.form-group input {
-  padding: 10px;
-  border: 1px solid #333;
-  border-radius: 4px;
-  background-color: #292929;
-  color: #e0e0e0;
-  font-size: 16px;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 4px var(--primary);
-}
-
-.generate_id {
-  border: none;
-  background: transparent;
-  text-align: left;
-  color: var(--text);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-.generate_id:hover {
-  color: var(--text-secondary);
-}
-
-/* Button styling */
-.submit-button {
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--primary);
-  color: #ffffff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.submit-button:hover {
-  background-color: var(--primary-hover);
-}
-
-/* ====================
- Adding Media Queryies
- ==================== */
-
-@media (max-width: 600px) {
-  .form-container {
-    max-width: 100%;
-  }
-  .create_room_container{
-    padding: 0 1rem;
-  }
 }

@@ -26,6 +26,7 @@ import {
       leaveRoom,
       sidebar,
       setSidebar,
+      currentPlayers
     } = useContext(meetingContext);
   
     // Handler for the Chat button
@@ -68,7 +69,7 @@ import {
                 : "",
             }}
             onClick={() => {
-              toggleAudio(players);
+              toggleAudio(currentPlayers);
               setPlayers((prev) => {
                 return {
                   ...prev,
@@ -107,7 +108,7 @@ import {
                 : "",
             }}
             onClick={() => {
-              toggleVideo(players);
+              toggleVideo(currentPlayers);
               setPlayers((prev) => {
                 return {
                   ...prev,

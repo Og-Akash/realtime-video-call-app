@@ -2,13 +2,14 @@ import { useState } from "react";
 import { cloneDeep } from "lodash";
 import { useSocket } from "@/context/Socket.jsx";
 import { ACTIONS } from "@/actions.js";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-export function usePlayers(myId,peer) {
+export function usePlayers(myId, peer) {
   const [players, setPlayers] = useState({});
   const { socket } = useSocket();
   const { roomId } = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { state } = useLocation();
 
   // Create copies of players for different views
   const playerCopy = cloneDeep(players);
@@ -20,17 +21,18 @@ export function usePlayers(myId,peer) {
   })();
 
   //? leave room function when a user disconnects
-  const leaveRoom = () =>{
-    socket.emit(ACTIONS.USER_LEAVE, {myId, roomId})
-    peer?.disconnect()
-    navigate("/")
-  }
+  const leaveRoom = () => {
+    socket.disconnect()
+    socket.emit(ACTIONS.USER_LEAVE, { email: state.user, roomId, myId });
+    peer?.disconnect();
+    navigate("/");
+  };
 
-    //? Toggle Audio Device 
+  //? Toggle Audio Device
   const toggleAudio = (currentPlayers) => {
     console.log("toggle audio player");
 
-    setPlayers(prevPlayers => {
+    setPlayers((prevPlayers) => {
       if (!currentPlayers[myId]) {
         console.error("Player not found:", myId);
         return currentPlayers;
@@ -50,11 +52,11 @@ export function usePlayers(myId,peer) {
     socket.emit(ACTIONS.USER_TOOGLE_AUDIO, { myId, roomId });
   };
 
-   //? Toggle Video Devicec
+  //? Toggle Video Device
   const toggleVideo = (currentPlayers) => {
     console.log("toggle video player");
 
-    setPlayers(prevPlayers => {
+    setPlayers((prevPlayers) => {
       if (!currentPlayers[myId]) {
         console.error("Player not found:", myId);
         return currentPlayers;
@@ -81,6 +83,6 @@ export function usePlayers(myId,peer) {
     nonHighlightedPlayers,
     toggleAudio,
     toggleVideo,
-    leaveRoom
+    leaveRoom,
   };
 }
