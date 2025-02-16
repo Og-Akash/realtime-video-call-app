@@ -1,0 +1,134 @@
+.testimonial-section {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    padding: 2rem 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent);
+}
+
+.testimonial-heading {
+    text-align: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.testimonial-wrapper {
+    width: 100%;
+    max-width: 80rem;
+    overflow: hidden;
+    position: relative;
+    margin-top: 1rem;
+}
+
+/* Add fade effect on both sides */
+.testimonial-wrapper::before,
+.testimonial-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 50px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.testimonial-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.6), transparent);
+}
+
+.testimonial-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.6), transparent);
+}
+
+.testimonial-container {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+    animation: scrollAnimation 20s linear infinite;
+}
+
+/* Pause animation when hovered */
+.testimonial-container:hover {
+    animation-play-state: paused;
+}
+
+.testimonial-card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 320px;
+    padding: 1.2rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+/* Scale effect on hover */
+.testimonial-card:hover {
+    transform: scale(1.05);
+}
+
+.testimonial-text {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Keyframes for smooth scrolling */
+@keyframes scrollAnimation {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Stop scrolling animation when the class is removed */
+.testimonial-container:not(.animate-scroll) {
+    animation: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .testimonial-wrapper {
+        max-width: 90%;
+    }
+
+    .testimonial-container {
+        animation-duration: 25s;
+    }
+}
+
+@media (max-width: 768px) {
+    .testimonial-container {
+        flex-wrap: nowrap;
+        gap: 1rem;
+    }
+
+    .testimonial-card {
+        width: 280px;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .testimonial-card {
+        width: 90%;
+        break-after:always;
+    }
+}
