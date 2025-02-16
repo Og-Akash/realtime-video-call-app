@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Video, Users } from "lucide-react";
-import "./Hero.css"; // Import the CSS file
+import "./hero.css"; // Import the CSS file
 
 const Hero = () => {
   const navigate = useNavigate();

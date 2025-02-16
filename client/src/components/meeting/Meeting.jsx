@@ -355,7 +355,7 @@ const MeetingRoom = ({
   );
 };
 
-const SelectDevice = ({
+export const SelectDevice = ({
   setToogleDeviceBox,
   devices,
   setSelectedDeviceId,

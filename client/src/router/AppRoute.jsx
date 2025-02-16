@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "@/components/Layout.jsx";
 import Loader from "../components/Loader";
 const Conference = lazy(() => import("../pages/Conference"));
-const CreateRoom = lazy(() => import("../pages/CreateRoom"));
+const Rooms = lazy(() => import("../pages/Rooms"));
 const Login = lazy(() => import("@/components/authentication/Login.jsx"));
 const Home = lazy(() => import("@/pages/Home"));
 
@@ -23,7 +23,7 @@ const Router = createBrowserRouter([
       },
       {
         path: "/rooms",
-        element: <CreateRoom />,
+        element: <Rooms />,
       },
     ],
   },
