@@ -12,9 +12,11 @@
 
     h1 {
         font-size: 1.4rem;
-        background: linear-gradient(90deg, rgba(209, 81, 255, 0.71) 0%, rgba(125, 78, 255, 0.658)70%);
+        background: linear-gradient(90deg, rgba(209, 81, 255, 0.71) 0%, rgba(125, 78, 255, 0.658) 70%);
         color: transparent;
+        -webkit-background-clip: text;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .camera-preview {
