@@ -25,7 +25,7 @@ const CameraPreview = ({ videoDevices, setSelectedDeviceId }) => {
   };
 
   return (
-    <div className="glass-effect cameraPreview-container">
+    <div className="cameraPreview-container glass-effect">
       <h1>Camera Preview:</h1>
       <div className="camera-preview">
         {isCameraOn ? (
