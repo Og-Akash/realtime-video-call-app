@@ -80,6 +80,10 @@
     transform: scale(1.05);
 }
 
+.testimonial-card svg{
+    color:  var(--light-primary)
+}
+
 .testimonial-text {
     color: var(--text-secondary);
     font-size: 1rem;

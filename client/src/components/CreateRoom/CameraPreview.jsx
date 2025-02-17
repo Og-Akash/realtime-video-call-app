@@ -1,13 +1,28 @@
 import React, { useState } from "react";
 import "./cameraPreview.css";
-import { Camera, CameraOff, Mic, MicOff, User } from "lucide-react";
+import {
+  Camera,
+  CameraOff,
+  ChevronDown,
+  ChevronUp,
+  Mic,
+  MicOff,
+  User,
+} from "lucide-react";
 import { useMediaStream } from "../../hooks/useMediaStream";
 import VideoPlayer from "../VideoPlayer";
+import { SelectDevice } from "../meeting/Meeting";
 
-const CameraPreview = () => {
-  const { stream } = useMediaStream();
+const CameraPreview = ({ videoDevices, setSelectedDeviceId }) => {
+  const { stream, updateStream } = useMediaStream();
   const [isCameraOn, setIsCameraOn] = useState(true);
+  const [videoList, setVideoList] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
+
+  const handleChangeDevice = (deviceId) => {
+    setSelectedDeviceId(deviceId);
+    updateStream(deviceId); 
+  };
 
   return (
     <div className="glass-effect cameraPreview-container">
@@ -19,8 +34,26 @@ const CameraPreview = () => {
           <User />
         )}
       </div>
+      {videoList && (
+        <SelectDevice
+          devices={videoDevices}
+          setSelectedDeviceId={(id) => setSelectedDeviceId(id)}
+          onChangeDevice={handleChangeDevice}
+        />
+      )}
+
       <div className="device-controls">
-        <button className="glass-effect" onClick={() => setIsCameraOn(!isCameraOn)}>
+        <button onClick={() => setVideoList(!videoList)} className="arrow">
+          {videoList ? (
+            <ChevronUp size={16} className="icon" />
+          ) : (
+            <ChevronDown size={16} className="icon" />
+          )}
+        </button>
+        <button
+          className="glass-effect"
+          onClick={() => setIsCameraOn(!isCameraOn)}
+        >
           {isCameraOn ? <Camera /> : <CameraOff />}
         </button>
         <button className="glass-effect" onClick={() => setIsMicOn(!isMicOn)}>

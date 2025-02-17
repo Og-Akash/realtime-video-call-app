@@ -85,45 +85,47 @@ io.on("connection", (socket) => {
     io.to(roomId).emit(ACTIONS.RECEIVE_MESSAGE, msgData);
   });
 
-  // socket.on(ACTIONS.USER_LEAVE, ({ email, roomId, myId }) => {
-  //   console.log(`${email} left room ${roomId} with peer id ${myId}`);
-  //   // Remove the user from our mapping
-  //   delete userSocketMap[socket.id];
-  //   const connectedUsers = getAllClients(roomId);
-  //   console.log("Latest users: " + JSON.stringify(connectedUsers));
-
-  //   socket.broadcast.to(roomId).emit(ACTIONS.USER_LEAVE, {
-  //     email: email ?? "unknown",
-  //     connectedUsers,
-  //     userId: myId,
-  //   });
-  // });
+  socket.on(ACTIONS.USER_LEAVE, ({ roomId, email }) => {
+    console.log(`${email} left room ${roomId}`);
+  
+    // Remove user from socket map
+    delete userSocketMap[socket.id];
+  
+    // Get updated users after removal
+    const connectedUsers = getAllClients(roomId);
+    console.log("Latest users after user left: ", JSON.stringify(connectedUsers));
+  
+    // Notify others in the room
+    socket.broadcast.to(roomId).emit(ACTIONS.USER_LEAVE, {
+      email,
+      connectedUsers,
+    });
+  
+    // Leave the room
+    socket.leave(roomId);
+  });
 
   // When a socket disconnects (e.g. closing browser/tab)
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
   
-    // Retrieve username before removal
-    const username = userSocketMap[socket.id];
+    const email = userSocketMap[socket.id]; // Get the email
+    delete userSocketMap[socket.id]; // Remove user
   
-    // Find all rooms the user was part of
-    const rooms = Array.from(socket.rooms).filter((roomId) => roomId !== socket.id);
+    // Find the room where the user was
+    const roomId = [...socket.rooms].find((id) => id !== socket.id);
   
-    // Remove user from map
-    delete userSocketMap[socket.id];
-  
-    // Notify each room that the user has left
-    rooms.forEach((roomId) => {
+    if (roomId) {
       const connectedUsers = getAllClients(roomId);
-      console.log(`Updated user list for room ${roomId}:`, connectedUsers);
+      console.log(`Latest users after ${email} left:`, connectedUsers);
   
       socket.broadcast.to(roomId).emit(ACTIONS.USER_LEAVE, {
-        email: username || "unknown",
+        email: email ?? "unknown",
         connectedUsers,
-        userId: socket.id,
       });
-    });
+    }
   });
+  
   
 });
 

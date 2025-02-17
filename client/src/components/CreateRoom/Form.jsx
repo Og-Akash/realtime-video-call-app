@@ -1,24 +1,25 @@
 import React, { useState } from "react";
 import "./form.css";
 import { v4 as uuidV4 } from "uuid";
-const Form = ({ handleChange, handleSubmit, formData, setFormData }) => {
-  const [currentState, setCurrentState] = useState("join");
+
+const Form = ({ handleChange, handleSubmit, formData, searchParam, setFormData }) => {
+  const [currentState, setCurrentState] = useState(searchParam.get("type"));
+
   return (
     <div className="glass-effect form-container">
       <h1>Create or Join Your Room</h1>
 
-      {/* Toogle buttions for join and create room */}
-
-      <div className="toogleTab">
+      {/* Toggle buttons for join and create room */}
+      <div className="toggleTab">
         <button
           onClick={() => setCurrentState("join")}
-          className={`toggle-btn ${currentState == "join" && "active"}`}
+          className={`toggle-btn ${currentState === "join" && "active"}`}
         >
           Join Room
         </button>
         <button
           onClick={() => setCurrentState("create")}
-          className={`toggle-btn ${currentState == "create" && "active"}`}
+          className={`toggle-btn ${currentState === "create" && "active"}`}
         >
           Create Room
         </button>
@@ -28,7 +29,7 @@ const Form = ({ handleChange, handleSubmit, formData, setFormData }) => {
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
-          className="input-field"
+            className="input-field"
             type="email"
             id="email"
             name="email"
@@ -43,34 +44,27 @@ const Form = ({ handleChange, handleSubmit, formData, setFormData }) => {
           <label htmlFor="roomId">Room Id:</label>
           <div className="roomId-box">
             <input
-            className="input-field"
+              className="input-field"
               type="text"
               id="roomId"
-              name="roomId" // Updated to 'roomId'
-              placeholder={
-                currentState == "create"
-                  ? "Generate your roomId"
-                  : "Enter your roomId"
-              }
+              name="roomId"
+              placeholder={currentState === "create" ? "Generate your roomId" : "Enter your roomId"}
               value={formData.roomId}
               onChange={handleChange}
               autoComplete="off"
               required
             />
-
-            {
-              currentState == "create" && (
-                <button
+            {currentState === "create" && (
+              <button
                 className="generate_id"
                 onClick={(e) => {
                   e.preventDefault();
-                  setFormData((prev) => ({ ...prev, roomId: uuidV4() })); // Update roomId here
+                  setFormData((prev) => ({ ...prev, roomId: uuidV4() }));
                 }}
               >
                 Generate
               </button>
-              )
-            }
+            )}
           </div>
         </div>
 

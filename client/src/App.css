@@ -93,3 +93,9 @@ create Room page
   justify-content: center;
   align-items: center;
 }
+
+@media (max-width: 600px) {
+  .create_room_container {
+      padding: 0 1rem;
+  }
+}

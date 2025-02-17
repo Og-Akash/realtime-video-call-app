@@ -31,7 +31,7 @@ const MeetingRoom = ({
     videoDevices[0]?.deviceId
   );
   const { socket } = useSocket();
-  const { stream, updateStream } = useMediaStream(selectedDeviceId);
+  const { stream, updateStream } = useMediaStream(selectedDeviceId || "");
   const [currentTime, setCurrentTime] = useState("");
   const { toggleAudio, toggleVideo, leaveRoom } = usePlayers(myId);
   const [currentPlayers, setCurrentPlayers] = useState(null);
@@ -374,20 +374,16 @@ export const SelectDevice = ({
       <div className="choose-device-box">
         {devices?.map((device) => (
           <button
-            className="choose-device-btn"
-            onClick={(e) => {
-              setSelectedDeviceId(device.deviceId);
-              onChangeDevice(device.deviceId);
-              setToogleDeviceBox({
-                audio: false,
-                video: false,
-              });
-            }}
-            key={device.deviceId}
-            value={device.deviceId}
-          >
-            {device.label || `Camera ${device.deviceId}`}
-          </button>
+          className="choose-device-btn"
+          onClick={() => {
+            setSelectedDeviceId(device.deviceId);
+            onChangeDevice(device.deviceId); // Ensure updateStream is called
+          }}
+          key={device.deviceId}
+        >
+          {device.label || `Camera ${device.deviceId}`}
+        </button>
+        
         ))}
       </div>
     </div>

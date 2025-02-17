@@ -22,8 +22,8 @@ export function usePlayers(myId, peer) {
 
   //? leave room function when a user disconnects
   const leaveRoom = () => {
-    socket.disconnect()
     socket.emit(ACTIONS.USER_LEAVE, { email: state.user, roomId, myId });
+    socket.disconnect()
     peer?.disconnect();
     navigate("/");
   };

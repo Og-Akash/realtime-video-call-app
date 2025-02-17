@@ -17,11 +17,11 @@ const Hero = () => {
             with your team.
           </p>
           <div className="buttons">
-            <button onClick={() => navigate("/rooms")} className="button button-primary">
+            <button onClick={() => navigate("/rooms?type=create")} className="button button-primary">
               <Video size={20} />
               Create Room
             </button>
-            <button onClick={() => navigate("/rooms")} className="button button-secondary">
+            <button onClick={() => navigate("/rooms?type=join&roomId=sdhfshdfhsdhsfh")} className="button button-secondary">
               <Users size={20} />
               Join Room
             </button>

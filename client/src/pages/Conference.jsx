@@ -8,6 +8,7 @@ import { useAvailableDevices } from "@/hooks/useMediaDevices.jsx";
 import MeetingRoom from "@/components/meeting/Meeting.jsx";
 import { cloneDeep } from "lodash";
 import Loader from "../components/Loader";
+import { useLocation } from "react-router-dom";
 
 const Conference = () => {
   const { socket } = useSocket();
@@ -16,10 +17,20 @@ const Conference = () => {
     usePlayers(myId, peer);
   const [calls, setCalls] = useState({}); // Track ongoing calls
   const { videoDevices } = useAvailableDevices();
-  const [selectedDeviceId] = useState(videoDevices[0]?.deviceId);
+  const { state } = useLocation();
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const { stream, updateStream } = useMediaStream(selectedDeviceId); // Modified hook to support stream updates
   const [isLoading, setIsLoading] = useState(true);
   const [connectedUsers, setConnectedUsers] = useState([]);
+
+  useEffect(() => {
+    if (state?.deviceId) {
+      setSelectedDeviceId(state.deviceId);
+    } else if (videoDevices.length > 0) {
+      setSelectedDeviceId(videoDevices[0].deviceId);
+    }
+  }, [state, videoDevices]);
+
   //? show the loader if until the peer connection is established
   useEffect(() => {
     if (!peer) {
@@ -27,7 +38,7 @@ const Conference = () => {
     }
 
     const handlePeerReady = () => {
-      // console.log("peer connection established");
+      console.log("peer connection established");
       setIsLoading(false);
     };
 
@@ -146,8 +157,8 @@ const Conference = () => {
     setPlayers((prev) => ({
       ...prev,
       [myId]: {
-        stream: null, // Stream will be added once initialized
-        muted: false, // Local video muted
+        stream: stream, // Stream will be added once initialized
+        muted: true, // Local video muted
         playing: true,
       },
     }));
@@ -176,8 +187,8 @@ const Conference = () => {
     }
 
     function toggleLeave({ email, connectedUsers, userId }) {
-      // console.log(`${email} leave the room.`);
-      // console.log("fresh users", connectedUsers);
+      console.log(`${email} leave the room.`);
+      console.log("fresh users", connectedUsers);
 
       alert(`user with id ${email} leave the room`);
       const updatedPlayer = cloneDeep(players);
@@ -195,11 +206,8 @@ const Conference = () => {
       socket.off(ACTIONS.USER_TOOGLE_VIDEO, toggleVideo);
       socket.on(ACTIONS.USER_LEAVE, toggleLeave);
     };
-  }, [socket, setPlayers]);
+  }, [socket]);
 
-  useEffect(() => {
-    console.log(connectedUsers);
-  }, [connectedUsers]);
 
   if (isLoading) {
     return <Loader>Joining The Room...</Loader>;

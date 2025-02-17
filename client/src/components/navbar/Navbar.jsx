@@ -6,7 +6,6 @@ import { LogIn, LogOut, User2, Video } from "lucide-react";
 export function Navbar() {
   const firebase = useFirebase();
   const navigate = useNavigate();
-  console.log(firebase?.currentUser);
 
   return (
     <nav className="glass-effect navbar">
